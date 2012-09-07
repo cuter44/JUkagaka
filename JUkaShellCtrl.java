@@ -110,11 +110,10 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
      */
     public static int prefetchImageResource(Class argShell)
     {
-        Field fieldCatalog = null;
+        String iniFileName = null;
         Field fieldHashImages = null;
         Field fieldHashMasks = null;
-        File catalogFile = null;
-        Scanner scnCatalog = null;
+        String[] buffer = null;
         Hashtable htImages = new Hashtable<String, Image>(48);
         Hashtable htMasks = new Hashtable<String, Area>(48);
 
@@ -123,11 +122,9 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
          */
         try
         {
-            fieldCatalog = argShell.getField("IMAGE_CATALOG");
+            iniFileName = (String)argShell.getField("DEFAULT_INI").get(null);
             fieldHashImages = argShell.getField("hashImages");
             fieldHashMasks = argShell.getField("hashMasks");
-            catalogFile = (File)fieldCatalog.get(null);
-            scnCatalog = new Scanner(catalogFile);
             fieldHashImages.set(null, htImages);
             fieldHashMasks.set(null, htMasks);
         }
@@ -137,44 +134,39 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
             return(0);
         }
 
-        int declaredCount = scnCatalog.nextInt();
-        int actualCount = 0;
-        int i;
-        String tmpString;
+        Scanner iniScanner = JUkaUtility.iniLocateSector(iniFileName, "images");
+        int actualLoad = 0;
+
         Image tmpImage = null;
         Area tmpMask = null;
 
-        // 跳过包含 declaredCount 的行
-        scnCatalog.nextLine();
-        // 循环读取及映射图像资源
-        for (i=1; i<=declaredCount; i++)
+        while ((buffer=JUkaUtility.iniEnumSector(iniScanner)) != null)
         {
-            try
-            {
-                tmpString = scnCatalog.nextLine();
-                tmpImage = Toolkit.getDefaultToolkit().getImage(JUkaUtility.getProgramPath() + tmpString);
-                if ((tmpMask = JUkaShellCtrl.calculateMask(tmpImage)) == null)
-                    throw new NullPointerException("计算蒙版失败于 " + tmpString);
-                htImages.put(tmpString, tmpImage);
-                htMasks.put(tmpString, tmpMask);
-                while (true)
+            //try
+            //{
+                if (htImages.containsKey(buffer[1]))
                 {
-                    tmpString = scnCatalog.nextLine();
-                    if (tmpString.equals("-"))
-                        break;
-                    htImages.put(tmpString, tmpImage);
-                    htMasks.put(tmpString, tmpMask);
+                    htImages.put(buffer[0], htImages.get(buffer[1]));
+                    htMasks.put(buffer[0], htMasks.get(buffer[1]));
+                }
+                else
+                {
+                    tmpImage = Toolkit.getDefaultToolkit().getImage(JUkaUtility.getProgramPath() + buffer[1]);
+                    if ((tmpMask = JUkaShellCtrl.calculateMask(tmpImage)) == null)
+                    {
+                        System.err.println("计算蒙版失败, 图像可能不正确: " + buffer[1]);
+                        continue;
+                    }
+                    htImages.put(buffer[0], tmpImage);
+                    htMasks.put(buffer[0], tmpMask);
+                    htImages.put(buffer[1], tmpImage);
+                    htMasks.put(buffer[1], tmpMask);
+                    actualLoad++;
                 }
 
-                actualCount++;
-            }
-            catch (Exception ex)
-            {
-                System.err.println(ex);
-            }
         }
 
-        return(actualCount);
+        return(actualLoad);
     }
 
     public static Area calculateMask(Image argImage)
@@ -185,7 +177,6 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
         try
         {
             MediaTracker tmpMediaTracker=new MediaTracker(new JLabel());
-            // note: Argument should be chenged to something else.
             tmpMediaTracker.addImage(argImage, 0);
             tmpMediaTracker.waitForAll();
         }
@@ -201,6 +192,7 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
         Area rtMask = new Area();
         int xStart,height,width;
         int tmpPixels[];
+
         // 抓取像素
         try
         {
@@ -224,39 +216,35 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
 
         height = argImage.getHeight(JUkaStage.eventListener);
         width = argImage.getWidth(JUkaStage.eventListener);
-        try
-        {
-            for (y = 0; y < height; y++)
-            {
-                xStart = 0;
-                for (x = 0; x < width; x++)
-                {
-                    if ((tmpPixels[y * width + x] & 0xFF000000) == 0)
-                    {
-                        if (xStart != 0)
-                        {
-                            rctLineBlock = new Rectangle(xStart, y, x - xStart, 1);
-                            rtMask.add(new Area(rctLineBlock));
-                            xStart = 0;
-                        }
-                    }
-                    else if (xStart == 0)
-                        xStart = x;
-                }
-                if (((tmpPixels[(y+1) * width - 1] & 0xFF000000) != 0)
-                    && (xStart!=0))
-                {
-                    rctLineBlock = new Rectangle(xStart, y, width - xStart, 1);
-                    rtMask.add(new Area(rctLineBlock));
-                    xStart = 0;
-                }
-            }
-        }
-        catch (ArrayIndexOutOfBoundsException ex)
-        {
-            System.err.println(ex);
-            System.err.println("OutOfIndex Error(x,y): " + x + "," + y);
+
+        // 不能加载图像时
+        if (height == 0)
             return(null);
+
+        for (y = 0; y < height; y++)
+        {
+            xStart = 0;
+            for (x = 0; x < width; x++)
+            {
+                if ((tmpPixels[y * width + x] & 0xFF000000) == 0)
+                {
+                    if (xStart != 0)
+                    {
+                        rctLineBlock = new Rectangle(xStart, y, x - xStart, 1);
+                        rtMask.add(new Area(rctLineBlock));
+                        xStart = 0;
+                    }
+                }
+                else if (xStart == 0)
+                    xStart = x;
+            }
+            if (((tmpPixels[(y+1) * width - 1] & 0xFF000000) != 0)
+                && (xStart!=0))
+            {
+                rctLineBlock = new Rectangle(xStart, y, width - xStart, 1);
+                rtMask.add(new Area(rctLineBlock));
+                xStart = 0;
+            }
         }
 
         return(rtMask);

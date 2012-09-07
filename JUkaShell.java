@@ -19,49 +19,16 @@ public class JUkaShell extends JUkaComponent implements Serializable
   // Static Data (NEED REWRITE) | 待重写静态数据域
     // 请将这些数据域复制到你重写的子类中, 并按需要修改其中的字符串内容.
     // 非字符串值及数据域签名请勿改动.
-    /**
-     * <p>此数据域记录此 Shell 的编程访问名字, 没有多大用...</p>
-     * <p>(*) 此类的扩展者应重写这个域</p>
-     */
-    public static final String shellName = "jukagaka.shell.JUkaShell";
 
     /**
-     * <p>此数据域记录此 Shell 对应的默认 Ghost 名字</p>
-     * <p>名字由完整的包名和类名组成, 并且大小写敏感<br>
-     * JUkagaka 将在创建新的 Shell 时查找并提供这个默认的 Ghost.<br>
+     * <p>此数据域记录 Shell 的静态参数存储, 也就是 ini 文件的位置.</p>
+     * <p>Shell 的大部分静态参数(例如春菜的名字, 图像资源列表等)均存储在此 ini
+     * 文件中, 通过这种方式存储是为了在便利性和灵活性上取得均衡, 某些 API 会要
+     * 求以整个 Shell 类来作为传入参数, 一般它们将通过此域来自行获取参数, 以
+     * 简化参数列, 并降低调用者的编程负担.<br>
      * (*) 此类的扩展者应重写这个域</p>
      */
-    public static final String defaultGhost = "jukagaka.ghost.JUkaGhost";
-
-    /**
-     * <p>此数据域记录此春菜的称谓</p>
-     * <p>(*) 此类的扩展者应重写这个域</p>
-     */
-    public static final String ukagakaName = "JUkaShell";
-
-    /**
-     * <p>此数据域记录此春菜的自称</p>
-     * <p>(*) 此类的扩展者应重写这个域</p>
-     */
-    public static final String ukagakaSelfCall = "JUkaShell";
-
-    /**
-     * <p>此数据域记录人格图像资源文件的引用</p>
-     * <p>(*) 此类的扩展者应重写这个域<br>
-     * .images是一个plain-text文件, 其中:<br>
-     * &nbsp;第一行是一个整数n表示共有n个关联对<br>
-     * &nbsp;此后包含n个组, 其中每组中的:
-     * &nbsp;&nbsp;第1行是一个图像文件名, 以对于JUkaUtility.getProgramPath()
-     * 的相对路径表示<br>
-     * &nbsp;&nbsp;此后包含 0 到若干行, 表示要注册的图像别名<br>
-     * &nbsp;&nbsp;单独一行 "-" 表示此组结束<br>
-     * &nbsp;表示将这些别名映射到图像资源上<br>
-     * 这些字串将用于嵌入宏/setBackground()等功能上以唯一地标识一个图像资源<br>
-     * <del>(!) 暂时还无法解决将多于两个名字绑定到同一图像时的预读重复问题(其实是因为懒)</del><br>
-     * 在同一个shell中定义的别名不允许重复(废话)<br>
-     * 大小写敏感</p>
-     */
-    public static final File IMAGE_CATALOG = new File(JUkaUtility.getProgramPath() + "default.images");
+    public static final String DEFAULT_INI = JUkaUtility.getProgramPath() + "defaultShell.ini";
 
     /**
      * <p>hashImages 和 hashShape 数据域用于挂载缓冲的图像资源</p>
@@ -111,6 +78,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     public static void destroyShell()
     {
 
+        this.discarded = true;
         return;
     }
 

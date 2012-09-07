@@ -6,16 +6,15 @@ package jukagaka.shell;
 
 import jukagaka.*;
 
-import java.io.File;
 import java.util.Hashtable;
 import java.awt.Image;
 import java.awt.geom.Area;
-import javax.swing.JDialog;
+import javax.swing.JWindow;
 
 public class SampleShell extends JUkaShell
 {
 
-    public static final File IMAGE_CATALOG = new File(JUkaUtility.getProgramPath() + "shell/SampleShell/SampleShell.images");
+    public static final String DEFAULT_INI = JUkaUtility.getProgramPath() + "shell/SampleShell/SampleShell.ini";
     public static Hashtable<String, Image> hashImages = null;
     public static Hashtable<String, Area> hashMasks = null;
 
@@ -85,12 +84,12 @@ public class SampleShell extends JUkaShell
         System.out.println(SampleShell.uninstallComponent());
 
         // 用于测试图像是否加载的代码
-        //JDialog tmpJDialog = new JDialog();
-        //tmpJDialog.setSize(320, 320);
-        //tmpJDialog.setVisible(true);
-        //tmpJDialog.getGraphics().drawImage(SampleShell.hashImages.get("shell/SampleShell/surface0000.png"),
-                                           //0, 0,
-                                           //JUkaStage.eventListener);
+        JWindow tmpJDialog = new JWindow();
+        tmpJDialog.setSize(320, 320);
+        tmpJDialog.setVisible(true);
+        tmpJDialog.getGraphics().drawImage(SampleShell.hashImages.get("shell/SampleShell/surface0000.png"),
+                                           0, 0,
+                                           JUkaStage.eventListener);
 
         return;
     }
