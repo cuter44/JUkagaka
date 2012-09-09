@@ -250,7 +250,7 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
         return(rtMask);
     }
 
-  // Other | 其他
+  // Other | 杂项
     /**
      * @deprecated 此方法目前仅用于调试
      */

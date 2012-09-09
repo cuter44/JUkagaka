@@ -116,7 +116,7 @@ public class JUkaComponentCtrl
         }
     }
 
-  // Other | 其他
+  // Other | 杂项
     /**
      * @deprecated 此方法目前仅用于调试
      */

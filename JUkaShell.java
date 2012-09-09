@@ -67,19 +67,45 @@ public class JUkaShell extends JUkaComponent implements Serializable
         JUkaShell newShell = new JUkaShell();
         newShell.ukagakaFrame = UkagakaFrame.createFrame();
         newShell.mainBalloonFrame = balloonFrame.createFrame();
+
         return(null);
     }
 
     /**
-     * <p>此方法用于回收一个 Shell 使之不再有效</p>
-     * <p>此方法将销毁春菜占用的资源<br>
+     * <p>此方法用于弃置一个 Shell 使之不再有效</p>
+     * <p>弃置 Shell 是指将其从当前运行环境中销毁, <span color="red">而不是指
+     * 将春菜从记录中不可逆地消除.</span><br>
+     * 此操作将销毁 Shell 占用的显示资源, 并将其标示为不可用(isDiscarded() 方法
+     * 返回 false)<br>
+     * 任何对已弃置 Shell 的操作请求都将被驳回或无效.<br>
      * (*) 此类的扩展者应按照该签名重写方法, 并在自撰的代码<b>后</b>调用父类的方法</p>
      */
-    public static void destroyShell()
+    public static void destroyShell(JUkaShell argShell)
     {
 
         this.discarded = true;
         return;
+    }
+
+    /**
+     * <p>此方法用于回收 Shell 使之不再有效</p>
+     * <p>此方法只是单纯地调用 JUkaShell.destroyShell(this)<br>
+     * (*) 建议此类的扩展者按照该签名重写方法, 并在自撰的代码<b>后</b>调用 super.discard()</p>
+     */
+    public void discard()
+    {
+        JUkaShell.destroyShell(this);
+        return;
+    }
+
+    /**
+     * <p>此方法返回 Shell 的 discarded 域, 以指示该 Shell 是否已经弃置</p>
+     * <p>弃置的 shell 是指已经通过 JUkaShell.destroyShell() 处理的 Shell.</p>
+     * @return 如果 Shell 已弃置, 则返回 true.
+     */
+    public boolean isDiscarded()
+    {
+        return(this.discarded);
     }
 
   // Start-up | 启动器
@@ -97,6 +123,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * <p>此方法用于退出时调用</p>
      * <p>子类的该方法会在 JUkagaka 退出前被调用, 组件可以趁此完成退出前工作<br>
+     * 如果子类要表示不能正常加载, 抛出任意 Exception 即可.<br>
      * (*) 此类的扩展这应按照该签名重写方法, 并在自撰的代码<b>后</b>调用父类的方法<br></p>
      */
     public static void onExit()
@@ -104,7 +131,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return;
     }
 
-  // Other | 其他
+  // Other | 杂项
     /**
      * 不允许访问的构造函数
      */

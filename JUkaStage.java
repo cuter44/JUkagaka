@@ -209,6 +209,7 @@ public class JUkaStage implements ActionListener,ImageObserver
      * <p><ul>此方法目前处理的事件有:
      * <li>托盘图标菜单的退出指令</ul></p>
      */
+    @Override
     public void actionPerformed(ActionEvent ev)
     {
         String actionCommand = ev.getActionCommand();
@@ -223,12 +224,13 @@ public class JUkaStage implements ActionListener,ImageObserver
      * <p>此方法实现 ImageObserver 的 imageUpdate() 方法</p>
      * <p>此方法目前什么也不做, 仅仅是作为使用 Image.getHeight() 等方法的填坑物.</p>
      */
+    @Override
     public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height)
     {
         return(false);
     }
 
-  // Other | 其他
+  // Other | 杂项
     /**
      * @deprecated 此方法目前仅用于调试
      */
