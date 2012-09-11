@@ -83,13 +83,19 @@ public class SampleShell extends JUkaShell
         System.out.println(SampleShell.hashMasks.size());
         System.out.println(SampleShell.uninstallComponent());
 
-        // 用于测试图像是否加载的代码
-        JWindow tmpJDialog = new JWindow();
-        tmpJDialog.setSize(320, 320);
-        tmpJDialog.setVisible(true);
-        tmpJDialog.getGraphics().drawImage(SampleShell.hashImages.get("shell/SampleShell/surface0000.png"),
-                                           0, 0,
-                                           JUkaStage.eventListener);
+        //// 用于测试图像是否加载的代码
+        //JWindow tmpJDialog = new JWindow();
+        //tmpJDialog.setSize(320, 320);
+        //tmpJDialog.setVisible(true);
+        //tmpJDialog.getGraphics().drawImage(SampleShell.hashImages.get("shell/SampleShell/surface0000.png"),
+                                           //0, 0,
+                                           //JUkaStage.eventListener);
+
+        // 用于测试 UkagagkaWin 能否正确缓存的方法
+        UkagakaWin testUkaWin = UkagakaWin.createUkagaka(SampleShell.DEFAULT_INI, hashImages, hashMasks);
+        testUkaWin.setVisible(true);
+        //testUkaWin.repaint();
+        testUkaWin.clip();
 
         return;
     }

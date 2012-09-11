@@ -17,6 +17,7 @@ public class BalloonWin extends JWindow
      * <ul>有效的字段有以下这些
      * <li>width=正整数 表示新气球的宽度(必须定义)
      * <li>height=正整数 表示新气球的高度(必须定义)
+     * <li>background=字符串 取自 images 节任一键或值 表示新气球的背景画像(必须定义)
      * </ul></p>
      * @param argIni 表示记录有初始化信息的 ini 文件
      * @return 一个空白的气球引用
@@ -35,6 +36,8 @@ public class BalloonWin extends JWindow
         if (htInitInfo.containsKey("height"))
             h = Integer.parseInt(htInitInfo.get("height"));
         this.setSize(w,h);
+
+        // 背景
 
         return(newBalloon);
     }
