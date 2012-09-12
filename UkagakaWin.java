@@ -33,12 +33,24 @@ public class UkagakaWin extends JWindow
      */
     private BufferedImage cacheImage = null;
     private Area cacheMask = null;
+    /**
+     * <p>此二数据域用于记录 Shell 图像/蒙版库的引用</p>
+     */
+    private Hashtable<String, Image> htImages = null;
+    private Hashtable<String, Area> htMasks = null;
 
     /**
      * <p>此数据域指定默认的缓冲层数, 从 #0 到 #bufferLayer 层, 默认为 3.</p>
      * 请参见<a href="buildBackBuffer">buildBackBuffer()</a>
      */
     private int bufferLayer = 3;
+
+    /**
+     * 此数据域记录缓存是否已过期
+     */
+    private boolean bufferOutdated = false;
+
+    //public void setImageLayer()
 
     /**
      * <p><a id="buildBackBuffer">生成缓存</a></p>
@@ -67,6 +79,8 @@ public class UkagakaWin extends JWindow
             }
 
         g.dispose();
+        this.bufferOutdated = false;
+
         return;
     }
 
@@ -78,6 +92,9 @@ public class UkagakaWin extends JWindow
     public void paint(Graphics g)
     {
         int i;
+
+        if (this.bufferOutdated)
+            this.buildBackBuffer();
 
         super.paint(g);
 
@@ -108,6 +125,19 @@ public class UkagakaWin extends JWindow
     }
 
   // Create/Destroy | 构造/析构
+
+    /**
+     * <p>设定新的图像库引用</p>
+     * <p>通常不需要</p>
+     */
+    public void setImageLib(Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
+        this.htImages = argHtImages;
+        this.htMasks = argHtMasks;
+
+        return;
+    }
+
     /**
      * <p>生成并返回一个新的春菜(指用于绘制春菜的窗体)</p>
      * <p>生成的新春菜将被指定的 ini 文件中 ukagaka 段预初始化<br>
@@ -124,6 +154,7 @@ public class UkagakaWin extends JWindow
     {
         UkagakaWin newUkaWin = new UkagakaWin();
         Hashtable<String, String> htInitInfo = JUkaUtility.iniReadSector(argIni, "ukagaka");
+        newUkaWin.setImageLib(argHtImages, argHtMasks);
 
         int h = 0,w = 0,i;
 

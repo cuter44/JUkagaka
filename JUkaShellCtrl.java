@@ -106,27 +106,31 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
 
   // Images | 图像处理
     /**
-     *
+     * <p></p>
      */
-    public static int prefetchImageResource(Class argShell)
+    public static int prefetchImageResource(Class argShell, String argIniFile)
     {
-        String iniFileName = null;
         Field fieldHashImages = null;
         Field fieldHashMasks = null;
         String[] buffer = null;
-        Hashtable htImages = new Hashtable<String, Image>(48);
-        Hashtable htMasks = new Hashtable<String, Area>(48);
+        Hashtable<String, Image> htImages = null;
+        Hashtable<String, Area> htMasks = null;
 
         /* 试图获取指定 Shell 的字段, 对于过程中可能产生的全部 Exception
          * 将中止处理, 并返回0.
          */
         try
         {
-            iniFileName = (String)argShell.getField("DEFAULT_INI").get(null);
             fieldHashImages = argShell.getField("hashImages");
             fieldHashMasks = argShell.getField("hashMasks");
-            fieldHashImages.set(null, htImages);
-            fieldHashMasks.set(null, htMasks);
+            if ( (htImages = (Hashtable<String,Image>)fieldHashImages.get(null)) == null)
+                fieldHashImages.set(null, htImages = new Hashtable<String,Image>(48));
+            else
+                htImages.clear();
+            if ( (htMasks = (Hashtable<String,Area>)fieldHashMasks.get(null)) == null)
+                fieldHashMasks.set(null, htMasks = new Hashtable<String,Area>(48));
+            else
+                htMasks.clear();
         }
         catch(Exception ex)
         {
@@ -134,7 +138,7 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
             return(0);
         }
 
-        Scanner iniScanner = JUkaUtility.iniLocateSector(iniFileName, "images");
+        Scanner iniScanner = JUkaUtility.iniLocateSector(argIniFile, "images");
         int actualLoad = 0;
 
         Image tmpImage = null;
