@@ -102,7 +102,7 @@ public class JUkaUtility
             buffer = argIniScanner.nextLine();
 
             // 显式跳过注释行
-            if (buffer.matches("\\s;"))
+            if (buffer.matches("\\s*;.*"))
                 continue;
 
             // 节末尾时返回 null
@@ -119,8 +119,8 @@ public class JUkaUtility
                 return(rtString);
             }
 
-            // 警告无法识别行, 但不打断执行
-            System.err.println("略过无法识别的ini内容: " + buffer);
+            //// 警告无法识别行, 但不打断执行
+            //System.err.println("略过无法识别的ini内容: " + buffer);
         }
 
         argIniScanner.close();
