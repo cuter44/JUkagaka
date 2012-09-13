@@ -29,7 +29,11 @@ public class UkagakaWin extends JWindow
     private Image[] imageLayer = new Image[8];
     private Area[] maskLayer = new Area[8];
     /**
-     * <p>此二数据域缓存 imageLayer 和 maskLayer 前四层的内容</p>
+     * <p>此数据域记录绘图坐标</p>
+     */
+    private int[][] coordinate = new int[8][2];
+    /**
+     * <p>此数据域记录 imageLayer 和 maskLayer 要求缓冲的内容</p>
      */
     private BufferedImage cacheImage = null;
     private Area cacheMask = null;
@@ -40,7 +44,7 @@ public class UkagakaWin extends JWindow
     private Hashtable<String, Area> htMasks = null;
 
     /**
-     * <p>此数据域指定默认的缓冲层数, 从 #0 到 #bufferLayer 层, 默认为 3.</p>
+     * <p>此数据域指定默认的缓存层数, 从 #0 到 #bufferLayer 层, 默认为 3.</p>
      * 请参见<a href="buildBackBuffer">buildBackBuffer()</a>
      */
     private int bufferLayer = 3;
@@ -50,7 +54,64 @@ public class UkagakaWin extends JWindow
      */
     private boolean bufferOutdated = false;
 
-    //public void setImageLayer()
+    /**
+     * <p>变更图层及蒙版</p>
+     * <p>此方法无视 argHashKey 中的位置信息(也就是说, 只将其作为图像索引使用), 只根据 argIndex, x, y 设置图层</p>
+     */
+    public boolean setImageLayer(String argHashKey, int argLayer, int x, int y)
+    {
+        // 越界检查
+        if ((argLayer < 0) || (argLayer > 7))
+            return(false);
+
+        // 图元存在检查
+        if (!htImages.containsKey(argHashKey))
+            return(false);
+
+        imageLayer[argLayer] = (Image)htImages.get(argHashKey);
+        maskLayer[argLayer] = (Area)htMasks.get(argHashKey);
+        this.coordinate[argLayer][0] = x;
+        this.coordinate[argLayer][1] = y;
+
+        if (argLayer <= this.bufferLayer)
+            this.bufferOutdated = true;
+
+        return(true);
+    }
+
+
+    /**
+     * <p>变更图层及蒙版</p>
+     */
+    public boolean setImageLayer(String argHashKey)
+    {
+        int layer, x, y;
+        String[] separatedKey = argHashKey.split(",");
+
+        try
+        {
+            layer = Integer.parseInt(separatedKey[1]);
+        }
+        catch (Exception ex)
+        {
+            System.err.println("argHashKey 不带有合法图层号: " + argHashKey + " ,自动假设为: " + (this.bufferLayer + 1));
+            layer = this.bufferLayer + 1;
+        }
+
+        try
+        {
+            x = Integer.parseInt(separatedKey[2]);
+            y = Integer.parseInt(separatedKey[3]);
+        }
+        catch (Exception ex)
+        {
+            System.err.println("argHashKey 不带有合法坐标: " + argHashKey + " ,自动假设为(0,0)");
+            x = 0;
+            y = 0;
+        }
+
+        return(this.setImageLayer(argHashKey, layer, x, y));
+    }
 
     /**
      * <p><a id="buildBackBuffer">生成缓存</a></p>
@@ -74,7 +135,12 @@ public class UkagakaWin extends JWindow
         for (i=0; i<=this.bufferLayer; i++)
             if (this.imageLayer[i] != null)
             {
-                g.drawImage(imageLayer[i], 0, 0, JUkaStage.eventListener);
+                g.drawImage(
+                    this.imageLayer[i],
+                    this.coordinate[i][0],
+                    this.coordinate[i][1],
+                    JUkaStage.eventListener
+                );
                 this.cacheMask.add(maskLayer[i]);
             }
 
@@ -100,8 +166,13 @@ public class UkagakaWin extends JWindow
 
         g.drawImage(this.cacheImage, 0, 0, JUkaStage.eventListener);
         for (i=this.bufferLayer+1; i<=7; i++)
-            if (imageLayer[i]!=null)
-                g.drawImage(this.imageLayer[i], 0, 0, JUkaStage.eventListener);
+            if (this.imageLayer[i]!=null)
+                g.drawImage(
+                    this.imageLayer[i],
+                    this.coordinate[i][0],
+                    this.coordinate[i][1],
+                    JUkaStage.eventListener
+                );
 
         return;
     }
@@ -128,7 +199,7 @@ public class UkagakaWin extends JWindow
 
     /**
      * <p>设定新的图像库引用</p>
-     * <p>通常不需要</p>
+     * <p>此方法在调用 createUkagaka() 时即自动被调用, 通常不需要手动地调用之</p>
      */
     public void setImageLib(Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
@@ -145,7 +216,7 @@ public class UkagakaWin extends JWindow
      * <li>
      * <li>width=正整数 指定新春菜的宽度 (必须定义)
      * <li>height=正整数 指定新春菜的高度 (必须定义)
-     * <li>layer?=字符串 取自 images 节任一键或值, 指定绘图的第?层, ? = 0-7 必须至少定义一个
+     * <li>image?=字符串 取自拟加载图像节任一带有图层号的键, 指定初始图层序列, ? = 0-7
      * </ul></p>
      * @param argIni 表示记录有初始化信息的 ini 文件
      * @return 春菜窗体的引用
@@ -168,14 +239,13 @@ public class UkagakaWin extends JWindow
 
         // 图层
         for (i=0; i<=7; i++)
-            if (htInitInfo.containsKey("layer"+i))
+            if (htInitInfo.containsKey("image"+i))
             {
-                String tmpImageName = htInitInfo.get("layer"+i);
+                String tmpImageName = htInitInfo.get("image"+i);
                 // 通常都不应该有空值...不过总是会有人犯二的.
                 if (tmpImageName.equals(""))
                     continue;
-                newUkaWin.imageLayer[i] = argHtImages.get(tmpImageName);
-                newUkaWin.maskLayer[i] = argHtMasks.get(tmpImageName);
+                newUkaWin.setImageLayer(htInitInfo.get("image"+i));
             }
         newUkaWin.buildBackBuffer();
 

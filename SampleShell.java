@@ -72,7 +72,7 @@ public class SampleShell extends JUkaShell
         try
         {
             Class classOfSampleShell = Class.forName("jukagaka.shell.SampleShell");
-            JUkaShellCtrl.prefetchImageResource(classOfSampleShell, SampleShell.DEFAULT_INI);
+            JUkaShellCtrl.prefetchImageResource(classOfSampleShell, SampleShell.DEFAULT_INI, "images", true);
         }
         catch (Exception ex)
         {
