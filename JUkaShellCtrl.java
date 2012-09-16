@@ -27,7 +27,7 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
     /**
      * 此数据域记录数据文件的名字
      */
-    private static final File LIST_FILE = new File(JUkaUtility.getProgramPath() + "JUkaShell.list");
+    private static final File LIST_FILE = new File(JUkaUtility.getProgramPath() + "shell/JUkaShell.list");
 
     /**
      * <p>安装 Shell 组件, 由子类调用</p>

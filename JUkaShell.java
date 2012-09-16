@@ -3,11 +3,12 @@
  * @version v120827
  */
 
-package jukagak.shell;
+package jukagaka.shell;
 
 import jukagaka.*;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.awt.Image;
@@ -41,34 +42,39 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * 此数据域记录当前可用的气球队列
      */
-    private ArrayList<JWindow> frameList = null;
+    private ArrayList<JWindow> winList = null;
     /**
      * 此数据域记录承载春菜的 Frame
      */
-    private UkagakaFrame ukagakaFrame = null;
+    private UkagakaWin ukagakaWin = null;
     /**
      * 此数据域记录主菜单的 Frame
      */
-    private BalloonFrame mainBalloonFrame = null;
+    private BalloonWin mainBalloon = null;
     /**
      * 此数据域标记 Shell 是否已经废弃
      */
     private boolean discarded = false;
 
   // Shell Instance | Shell 实例管理
-  // 请按照要求重写这些方法.
+    // 请按照要求重写这些方法.
     /**
      * <p>此方法用于产生一个新的 Shell</p>
-     * <p><br>
-     * (*) 此类的扩展者应按照该签名重写方法, 并在自撰的代码<b>前</b>调用父类的方法</p>
+     * <p>传入的参数将以引用(而非克隆)被存储于生成的 Wins 中, 也就是说对图像库
+     * 所作的修改会自动反映到窗体中.<br>
+     * (*) 此类的扩展者应以 public 重写方法, 并在自撰的代码<b>前</b>调用父类的方法</p>
      */
-    public static JUkaShell createShell()
+    protected static JUkaShell createShell(String argIniFile,Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         JUkaShell newShell = new JUkaShell();
-        newShell.ukagakaFrame = UkagakaFrame.createFrame();
-        newShell.mainBalloonFrame = balloonFrame.createFrame();
 
-        return(null);
+        newShell.winList = new ArrayList<JWindow>(16);
+        newShell.ukagakaWin = UkagakaWin.createUkagaka(argIniFile, argHtImages, argHtMasks);
+        newShell.winList.add(newShell.ukagakaWin);
+        newShell.mainBalloon = BalloonWin.createBalloon(argIniFile, argHtImages, argHtMasks);
+        newShell.winList.add(newShell.mainBalloon);
+
+        return(newShell);
     }
 
     /**
@@ -80,19 +86,19 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * 任何对已弃置 Shell 的操作请求都将被驳回或无效.<br>
      * (*) 此类的扩展者应按照该签名重写方法, 并在自撰的代码<b>后</b>调用父类的方法</p>
      */
-    public static void destroyShell(JUkaShell argShell)
+    protected static void destroyShell(JUkaShell argShell)
     {
 
-        this.discarded = true;
+        argShell.discarded = true;
         return;
     }
 
     /**
      * <p>此方法用于回收 Shell 使之不再有效</p>
      * <p>此方法只是单纯地调用 JUkaShell.destroyShell(this)<br>
-     * (*) 建议此类的扩展者按照该签名重写方法, 并在自撰的代码<b>后</b>调用 super.discard()</p>
+     * (*) 建议此类的扩展者应以 public 重写方法, 并在自撰的代码<b>后</b>调用 super.discard()</p>
      */
-    public void discard()
+    protected void discard()
     {
         JUkaShell.destroyShell(this);
         return;
@@ -108,15 +114,131 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(this.discarded);
     }
 
+  // Ukagaka Control | 春菜操纵命令
+    /* 基于 JLS 规范以及锁定机能的需要对 ukagakaWin 进行屏蔽,
+     * 除了第一个命令外, 其余命令将被转发到 JUkaShell.ukagakaWin 的同名方法上执行.
+     * 此类的扩展者可以重写并以 super.methodName() 的方式调用以增加自己设定的限制.
+     * 当然也可以放着不重写, 根据 JLS 的动态绑定设定, 这些方法依旧会被执行.
+     */
+    /**
+     * <p>获取 UkagakaWin 的引用</p>
+     * <p>(!) 注意通过此方法可以绕过封装直接操控春菜, 这可能做成破坏性后果,
+     * 因此请不要处于调试以外的目的使用此方法.</p>
+     */
+    public UkagakaWin getUkagaka()
+    {
+        return(this.ukagakaWin);
+    }
+
+    public boolean setImageLayer(String argHashKey, int argLayer, int x, int y, int accessKey)
+    {
+        if (!this.checkAuthority(accessKey))
+            return(false);
+
+        return(this.ukagakaWin.setImageLayer(argHashKey, argLayer, x, y));
+    }
+
+    public boolean setImageLayer(String argHashKey, int accessKey)
+    {
+        if (!this.checkAuthority(accessKey))
+            return(false);
+
+        return(this.ukagakaWin.setImageLayer(argHashKey));
+    }
+
+    public boolean setImageLayer(String[] argHashKeys, int accessKey)
+    {
+        if (!this.checkAuthority(accessKey))
+            return(false);
+
+        return(this.ukagakaWin.setImageLayer(argHashKeys));
+    }
+
+    public int getBufferLayer()
+    {
+        return(this.ukagakaWin.getBufferLayer());
+    }
+
+    public int setBufferLayer(int newBufferLayer)
+    {
+        return(this.ukagakaWin.setBufferLayer(newBufferLayer));
+    }
+
+    public void buildBackBuffer()
+    {
+        this.ukagakaWin.buildBackBuffer();
+        return;
+    }
+
+  // Balloon Control | 气球操纵指令
+    // STILL IN PROCESS, WILL COME OUT SOON
+
+  // General for Ukagaka & Balloon | Win 通用操纵命令
+    // STILL IN PROCESS, WILL COME OUT SOON
+
+    //public void clip(JWindow argTargetWin)
+    //public void repaint(JWindow argTargetWin)
+
+    // Monopoly | 独占使用(吐槽坑爹的爱词霸)
+    /**
+     * 此数据域记录目前使用中的 Key
+     */
+    private int preservedKey = 0;
+
+    /**
+     * <p>锁定春菜以获得其专用权</p>
+     * <p>此类的扩展者应以 public 覆盖此函数, 并在自撰的代码<strong>后</strong>
+     * 调用此方法.</p>
+     */
+    protected int lockUkagaka()
+    {
+        // 已锁定时报错
+        if (this.preservedKey != 0)
+            return(0xFFFFFFFF);
+
+        // 生成密钥
+        do
+            this.preservedKey = new Double(Math.random() * 0x7FFFFFFF).intValue();
+        while (this.preservedKey <= 0);
+
+        return(this.preservedKey);
+    }
+
+    /**
+     * <p>解锁伪春菜以去除其专用保护</p>
+     * <p>由于不依赖密钥解锁, 所以这个方法总是成功并且返回 true 的, 这意味着
+     * 可以抢占 Shell, 而且不会有栈信息以还原抢占...<br>
+     * 此类的扩展者应该以 public 覆盖此方法, 并在自撰的代码<strong>后</strong>
+     * 调用此方法</p>
+     */
+    protected boolean unlockUkagaka()
+    {
+        this.preservedKey = 0;
+
+        return(true);
+    }
+
+    /**
+     * <p>此方法判定给定的密钥能否获得春菜的占用权</p>
+     */
+    public boolean checkAuthority(int key)
+    {
+        if (this.preservedKey == 0)
+            return(true);
+
+        return((key ^ this.preservedKey) == 0);
+    }
+
   // Start-up | 启动器
     /**
      * <p>此方法目前不包含任何代码, 仅仅作为 token 存在.</p>
      * <p>子类的该方法会在 JUkagaka 启动时被调用, 组件可以趁此完成初始化工作<br>
      * 如果子类要表示不能正常加载, 抛出任意 Exception 即可.<br>
-     * (*) 此类的扩展这应按照该签名重写方法<br></p>
+     * (*) 此类的扩展这应以 public 重写方法, 并在自撰的代码<strong>前</strong>调用此方法<br></p>
      */
-    public static void onLoad()
+    protected static void onLoad()
     {
+
         return;
     }
 
@@ -126,7 +248,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * 如果子类要表示不能正常加载, 抛出任意 Exception 即可.<br>
      * (*) 此类的扩展这应按照该签名重写方法, 并在自撰的代码<b>后</b>调用父类的方法<br></p>
      */
-    public static void onExit()
+    protected static void onExit()
     {
         return;
     }

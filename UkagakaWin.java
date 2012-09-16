@@ -8,6 +8,7 @@ package jukagaka.shell;
 import jukagaka.*;
 
 import javax.swing.JWindow;
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
@@ -22,7 +23,7 @@ import com.sun.awt.AWTUtilities;
 public class UkagakaWin extends JWindow
 {
 
-  // Paint | 绘制
+  // Layer & Buffer | 变更图层及缓存
     /**
      * <p>此四个数据域记录绘图用的图层, 蒙版及缓存</p>
      */
@@ -50,28 +51,90 @@ public class UkagakaWin extends JWindow
     private int bufferLayer = 3;
 
     /**
-     * 此数据域记录缓存是否已过期
+     * <p>此方法用于变更缓存层数</p>
      */
-    private boolean bufferOutdated = false;
+    public int setBufferLayer(int newBufferLayer)
+    {
+        if ((newBufferLayer<0) || (newBufferLayer>7))
+            return(this.getBufferLayer());
+
+        return(this.bufferLayer = newBufferLayer);
+    }
+
+    /**
+     * <p>此方法返回当前缓存层数</p>
+     */
+    public int getBufferLayer()
+    {
+        return(this.bufferLayer);
+    }
+
+    /**
+     * <p><a id="buildBackBuffer">生成缓存</a></p>
+     * <p>通过将不常改变的背景绘制到缓存中可以在实际绘制时提高性能.<br>
+     * 如果指定的图层都为 null, 将自动绘制空白的缓存<br>
+     * 如果不需要绘制缓冲, 请指定 bufferLayer = -1, 但即使如此也需要调用这个
+     * 方法以保证正确执行.<br>
+     * 大多数影响图层的方法都将自动重建缓存, 关于此条请参见各方法的注释.</p>
+     */
+    public void buildBackBuffer()
+    {
+        Dimension winSize = this.getSize();
+
+        // 创建新的空白缓存
+        this.cacheImage = new BufferedImage(winSize.width, winSize.height,BufferedImage.TYPE_INT_ARGB);
+        this.cacheMask = new Area();
+        Graphics g = this.cacheImage.getGraphics();
+
+        // 生成缓存
+        int i;
+        for (i=0; i<=this.bufferLayer; i++)
+            if (this.imageLayer[i] != null)
+            {
+                g.drawImage(
+                    this.imageLayer[i],
+                    this.coordinate[i][0],
+                    this.coordinate[i][1],
+                    JUkaStage.eventListener
+                );
+                this.cacheMask.add(maskLayer[i]);
+            }
+
+        g.dispose();
+        this.bufferOutdated = false;
+
+        return;
+    }
 
     /**
      * <p>变更图层及蒙版</p>
-     * <p>此方法无视 argHashKey 中的位置信息(也就是说, 只将其作为图像索引使用), 只根据 argIndex, x, y 设置图层</p>
+     * <p>此方法无视 argHashKey 中的位置信息(也就是说, 只将其作为图像索引使用),
+     * 只根据 argIndex, x, y 设置图层</p>
      */
     public boolean setImageLayer(String argHashKey, int argLayer, int x, int y)
     {
-        // 越界检查
-        if ((argLayer < 0) || (argLayer > 7))
-            return(false);
+        if ((argHashKey == null) || (argHashKey.equals("")))
+        // 清除图层
+        {
+            this.imageLayer[argLayer] = null;
+            this.maskLayer[argLayer] = null;
+        }
+        else
+        // 设置图层
+        {
+            // 越界检查
+            if ((argLayer < 0) || (argLayer > 7))
+                return(false);
 
-        // 图元存在检查
-        if (!htImages.containsKey(argHashKey))
-            return(false);
+            // 图元存在检查
+            if (!htImages.containsKey(argHashKey))
+                return(false);
 
-        imageLayer[argLayer] = (Image)htImages.get(argHashKey);
-        maskLayer[argLayer] = (Area)htMasks.get(argHashKey);
-        this.coordinate[argLayer][0] = x;
-        this.coordinate[argLayer][1] = y;
+            this.imageLayer[argLayer] = (Image)htImages.get(argHashKey);
+            this.maskLayer[argLayer] = (Area)htMasks.get(argHashKey);
+            this.coordinate[argLayer][0] = x;
+            this.coordinate[argLayer][1] = y;
+        }
 
         if (argLayer <= this.bufferLayer)
             this.bufferOutdated = true;
@@ -79,9 +142,9 @@ public class UkagakaWin extends JWindow
         return(true);
     }
 
-
     /**
      * <p>变更图层及蒙版</p>
+     * <p>仅仅是带有图层和坐标标记的 HashKey 才能正确使用此方法</p>
      */
     public boolean setImageLayer(String argHashKey)
     {
@@ -110,45 +173,31 @@ public class UkagakaWin extends JWindow
             y = 0;
         }
 
+        if (separatedKey[0].equals(""))
+            return(this.setImageLayer(null,layer,0,0));
         return(this.setImageLayer(argHashKey, layer, x, y));
     }
 
     /**
-     * <p><a id="buildBackBuffer">生成缓存</a></p>
-     * <p>通过将不常改变的背景绘制到缓存中可以在实际绘制时提高性能.<br>
-     * 如果指定的图层都为 null, 将自动绘制空白的缓存<br>
-     * 如果不需要绘制缓冲, 请指定 bufferLayer = -1, 但即使如此也需要调用这个
-     * 方法以保证正确执行.<br>
-     * 大多数影响图层的方法都将自动重建缓存, 关于此条请参见各方法的注释.</p>
+     * <p>成批地变更图层及蒙版</p>
+     * <p>仅仅是带有图层和坐标标记的 HashKey 才能正确使用此方法</p>
      */
-    public void buildBackBuffer()
+    public boolean setImageLayer(String[] argHashKeys)
     {
-        Dimension winSize = this.getSize();
-
-        // 创建新的空白缓存
-        this.cacheImage = new BufferedImage(winSize.width, winSize.height,BufferedImage.TYPE_INT_ARGB);
-        this.cacheMask = new Area();
-        Graphics g = this.cacheImage.getGraphics();
-
-        // 检查非空图层
+        boolean rtSuccess = true;
         int i;
-        for (i=0; i<=this.bufferLayer; i++)
-            if (this.imageLayer[i] != null)
-            {
-                g.drawImage(
-                    this.imageLayer[i],
-                    this.coordinate[i][0],
-                    this.coordinate[i][1],
-                    JUkaStage.eventListener
-                );
-                this.cacheMask.add(maskLayer[i]);
-            }
 
-        g.dispose();
-        this.bufferOutdated = false;
+        for (i=1; i<=argHashKeys.length; i++)
+            rtSuccess = rtSuccess && this.setImageLayer(argHashKeys[i]);
 
-        return;
+        return(rtSuccess);
     }
+
+  // Paint | 绘制
+    /**
+     * 此数据域记录缓存是否已过期
+     */
+    private boolean bufferOutdated = false;
 
     /**
      * <p>绘制</p>
@@ -297,17 +346,17 @@ public class UkagakaWin extends JWindow
         );
     }
 
+  // Other | 杂项
     /**
      * <p>私有构造函数</p>
      * <p>从这里加入了拖动窗体的代码</p>
      */
-
     private UkagakaWin()
     {
+        this.setBackground(Color.BLACK);
         this.setDragable();
     }
 
-  // Other | 杂项
     /**
      * @deprecated 此方法目前仅用于调试
      */

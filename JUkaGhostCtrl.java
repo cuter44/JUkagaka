@@ -16,7 +16,7 @@ public class JUkaGhostCtrl extends JUkaComponentCtrl
     /**
      * 此数据域记录数据文件的名字
      */
-    private static final File LIST_FILE = new File(JUkaUtility.getProgramPath() + "JUkaGhost.list");
+    private static final File LIST_FILE = new File(JUkaUtility.getProgramPath() + "ghost/JUkaGhost.list");
     /**
      * <p>安装 Ghost 组件, 由子类调用</p>
      * <p>(!) 此方法不包含传入参数以增强安全性.<br>

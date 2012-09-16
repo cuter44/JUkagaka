@@ -57,6 +57,20 @@ public class SampleShell extends JUkaShell
      */
     public static void onLoad()
     {
+        JUkaShell.onLoad();
+
+        // 加载图像资源
+        try
+        {
+            Class classOfSampleShell = Class.forName("jukagaka.shell.SampleShell");
+            JUkaShellCtrl.prefetchImageResource(classOfSampleShell, SampleShell.DEFAULT_INI, "images", true);
+        }
+        catch (Exception ex)
+        {
+            System.err.println(ex);
+            return;
+        }
+
         System.out.println("onLoad() was invoked successfully");
         return;
     }
@@ -69,19 +83,19 @@ public class SampleShell extends JUkaShell
     {
         // 用于测试 Shell 装/卸载 及 图像加载时间的代码.
         System.out.println(SampleShell.installComponent());
-        try
-        {
-            Class classOfSampleShell = Class.forName("jukagaka.shell.SampleShell");
-            JUkaShellCtrl.prefetchImageResource(classOfSampleShell, SampleShell.DEFAULT_INI, "images", true);
-        }
-        catch (Exception ex)
-        {
-            System.err.println(ex);
-            return;
-        }
-        System.out.println(SampleShell.hashImages.size());
-        System.out.println(SampleShell.hashMasks.size());
-        System.out.println(SampleShell.uninstallComponent());
+        //try
+        //{
+            //Class classOfSampleShell = Class.forName("jukagaka.shell.SampleShell");
+            //JUkaShellCtrl.prefetchImageResource(classOfSampleShell, SampleShell.DEFAULT_INI, "images", true);
+        //}
+        //catch (Exception ex)
+        //{
+            //System.err.println(ex);
+            //return;
+        //}
+        //System.out.println(SampleShell.hashImages.size());
+        //System.out.println(SampleShell.hashMasks.size());
+        //System.out.println(SampleShell.uninstallComponent());
 
         //// 用于测试图像是否加载的代码
         //JWindow tmpJDialog = new JWindow();
@@ -96,6 +110,7 @@ public class SampleShell extends JUkaShell
         testUkaWin.setVisible(true);
         //testUkaWin.repaint();
         testUkaWin.clip();
+        testUkaWin.setLocation(1250, 625);
 
         return;
     }
