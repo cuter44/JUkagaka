@@ -7,7 +7,7 @@ package jukagaka.shell;
 
 import jukagaka.*;
 
-import javax.swing.JWindow;
+import javax.swing.JDialog;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -20,7 +20,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.Hashtable;
 import com.sun.awt.AWTUtilities;
 
-public class UkagakaWin extends JWindow
+public class UkagakaWin extends JDialog
 {
 
   // Layer & Buffer | 变更图层及缓存
@@ -127,11 +127,11 @@ public class UkagakaWin extends JWindow
                 return(false);
 
             // 图元存在检查
-            if (!htImages.containsKey(argHashKey))
+            if (!this.htImages.containsKey(argHashKey))
                 return(false);
 
-            this.imageLayer[argLayer] = (Image)htImages.get(argHashKey);
-            this.maskLayer[argLayer] = (Area)htMasks.get(argHashKey);
+            this.imageLayer[argLayer] = htImages.get(argHashKey);
+            this.maskLayer[argLayer] = htMasks.get(argHashKey);
             this.coordinate[argLayer][0] = x;
             this.coordinate[argLayer][1] = y;
         }
@@ -182,15 +182,29 @@ public class UkagakaWin extends JWindow
      * <p>成批地变更图层及蒙版</p>
      * <p>仅仅是带有图层和坐标标记的 HashKey 才能正确使用此方法</p>
      */
-    public boolean setImageLayer(String[] argHashKeys)
+    public boolean setImageBatch(String[] arrHashKeys)
     {
         boolean rtSuccess = true;
         int i;
 
-        for (i=1; i<=argHashKeys.length; i++)
-            rtSuccess = rtSuccess && this.setImageLayer(argHashKeys[i]);
+        for (i=1; i<=arrHashKeys.length; i++)
+            rtSuccess = rtSuccess && this.setImageLayer(arrHashKeys[i]);
 
         return(rtSuccess);
+    }
+
+    public boolean setImageBatch(String arrHashKeys)
+    {
+        try
+        {
+            String[] splitedKeys = arrHashKeys.split("\\|");
+            return(setImageBatch(splitedKeys));
+        }
+        catch (Exception ex)
+        {
+            System.err.println(ex);
+            return(false);
+        }
     }
 
   // Paint | 绘制
@@ -213,7 +227,7 @@ public class UkagakaWin extends JWindow
 
         super.paint(g);
 
-        g.drawImage(this.cacheImage, 0, 0, JUkaStage.eventListener);
+        g.drawImage(this.cacheImage, 0, 0, this);
         for (i=this.bufferLayer+1; i<=7; i++)
             if (this.imageLayer[i]!=null)
                 g.drawImage(
@@ -291,20 +305,23 @@ public class UkagakaWin extends JWindow
             if (htInitInfo.containsKey("image"+i))
             {
                 String tmpImageName = htInitInfo.get("image"+i);
-                // 通常都不应该有空值...不过总是会有人犯二的.
-                if (tmpImageName.equals(""))
-                    continue;
-                newUkaWin.setImageLayer(htInitInfo.get("image"+i));
+                newUkaWin.setImageLayer(tmpImageName);
             }
         newUkaWin.buildBackBuffer();
+
+        // 可拖动化
+        newUkaWin.setDragable();
+
+        // 去除标题栏
+        newUkaWin.setUndecorated(true);
 
         return(newUkaWin);
     }
 
   // Dragable | 窗体可拖动化
-  /**
-   * 此二数据域用于记录鼠标相对坐标, 为拖动窗体提供支持.
-   */
+    /**
+     * 此二数据域用于记录鼠标相对坐标, 为拖动窗体提供支持.
+     */
     private int relativeX,relativeY;
 
     /**
@@ -348,13 +365,10 @@ public class UkagakaWin extends JWindow
 
   // Other | 杂项
     /**
-     * <p>私有构造函数</p>
-     * <p>从这里加入了拖动窗体的代码</p>
+     * 构造函数...不应该被显式调用
      */
-    private UkagakaWin()
+    protected UkagakaWin()
     {
-        this.setBackground(Color.BLACK);
-        this.setDragable();
     }
 
     /**

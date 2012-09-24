@@ -13,7 +13,7 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 import java.awt.Image;
 import java.awt.geom.Area;
-import javax.swing.JWindow;
+import javax.swing.JDialog;
 
 public class JUkaShell extends JUkaComponent implements Serializable
 {
@@ -42,7 +42,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * 此数据域记录当前可用的气球队列
      */
-    private ArrayList<JWindow> winList = null;
+    private ArrayList<JDialog> winList = null;
     /**
      * 此数据域记录承载春菜的 Frame
      */
@@ -146,12 +146,20 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(this.ukagakaWin.setImageLayer(argHashKey));
     }
 
-    public boolean setImageLayer(String[] argHashKeys, int accessKey)
+    public boolean setImageBatch(String[] arrHashKeys, int accessKey)
     {
         if (!this.checkAuthority(accessKey))
             return(false);
 
-        return(this.ukagakaWin.setImageLayer(argHashKeys));
+        return(this.ukagakaWin.setImageBatch(arrHashKeys));
+    }
+
+    public boolean setImageBatch(String arrHashKeys, int accessKey)
+    {
+        if (!this.checkAuthority(accessKey))
+            return(false);
+
+        return(this.ukagakaWin.setImageBatch(arrHashKeys));
     }
 
     public int getBufferLayer()
@@ -179,7 +187,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     //public void clip(JWindow argTargetWin)
     //public void repaint(JWindow argTargetWin)
 
-    // Monopoly | 独占使用(吐槽坑爹的爱词霸)
+  // Monopoly | 独占使用(吐槽坑爹的爱词霸)
     /**
      * 此数据域记录目前使用中的 Key
      */
@@ -255,9 +263,9 @@ public class JUkaShell extends JUkaComponent implements Serializable
 
   // Other | 杂项
     /**
-     * 不允许访问的构造函数
+     * 构造函数...不应该被显式调用
      */
-    private JUkaShell()
+    protected JUkaShell()
     {
     }
     /**

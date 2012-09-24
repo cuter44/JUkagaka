@@ -81,18 +81,18 @@ public class SampleShell extends JUkaShell
      */
     public static void main(String[] args)
     {
-        // 用于测试 Shell 装/卸载 及 图像加载时间的代码.
-        System.out.println(SampleShell.installComponent());
-        //try
-        //{
-            //Class classOfSampleShell = Class.forName("jukagaka.shell.SampleShell");
-            //JUkaShellCtrl.prefetchImageResource(classOfSampleShell, SampleShell.DEFAULT_INI, "images", true);
-        //}
-        //catch (Exception ex)
-        //{
-            //System.err.println(ex);
-            //return;
-        //}
+        //// 用于测试 Shell 装/卸载 及 图像加载时间的代码.
+        //System.out.println(SampleShell.installComponent());
+        try
+        {
+            Class classOfSampleShell = Class.forName("jukagaka.shell.SampleShell");
+            JUkaShellCtrl.prefetchImageResource(classOfSampleShell, SampleShell.DEFAULT_INI, "images", true);
+        }
+        catch (Exception ex)
+        {
+            System.err.println(ex);
+            return;
+        }
         //System.out.println(SampleShell.hashImages.size());
         //System.out.println(SampleShell.hashMasks.size());
         //System.out.println(SampleShell.uninstallComponent());
@@ -111,6 +111,11 @@ public class SampleShell extends JUkaShell
         //testUkaWin.repaint();
         testUkaWin.clip();
         testUkaWin.setLocation(1250, 625);
+
+        BalloonWin testBallWin = BalloonWin.createBalloon(SampleShell.DEFAULT_INI, hashImages, hashMasks);
+        testBallWin.setVisible(true);
+        testBallWin.repaint();
+        testBallWin.clip();
 
         return;
     }

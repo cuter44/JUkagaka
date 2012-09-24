@@ -211,8 +211,12 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
             // º∆À„∆Ω“∆
             if ((x!=0) || (y!=0))
                 tmpMask = tmpMask.createTransformedArea(
-                    new AffineTransform(0,0,0,0,x,y)
+                    new AffineTransform(
+                        1, 0, // ScaleX, SheerY
+                        0, 1, // SheerX, ScaleY
+                        x, y) // TransXY
                 );
+            System.out.println(tmpMask.isEmpty());
             htMasks.put(buffer[0], tmpMask);
         }
 

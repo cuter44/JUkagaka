@@ -72,10 +72,10 @@ public class JUkaStage implements ActionListener,ImageObserver
         JUkaStage.stageTray.setImageAutoSize(true);
         JUkaStage.stageTray.setPopupMenu(new PopupMenu());
 
-        MenuItem exitItem = new MenuItem("退出");
-        exitItem.addActionListener(JUkaStage.eventListener);
-        exitItem.setActionCommand("exit");
-        JUkaStage.getStageTray().getPopupMenu().add(exitItem);
+        MenuItem cmdExit = new MenuItem("退出");
+        cmdExit.addActionListener(JUkaStage.eventListener);
+        cmdExit.setActionCommand("cmdExit");
+        JUkaStage.getStageTray().getPopupMenu().add(cmdExit);
 
         return(true);
     }
@@ -184,7 +184,7 @@ public class JUkaStage implements ActionListener,ImageObserver
      * <p>此方法用于处理退出请求</p>
      * <p>此方法尚未实现</p>
      */
-    public static void exit()
+    public static void fireExitCmd()
     {
         // TODO 加入 退出时 的代码.
         System.exit(0);
@@ -213,9 +213,9 @@ public class JUkaStage implements ActionListener,ImageObserver
     public void actionPerformed(ActionEvent ev)
     {
         String actionCommand = ev.getActionCommand();
-        if (actionCommand.equals("exit"));
+        if (actionCommand.equals("cmdExit"))
         {
-            JUkaStage.exit();
+            JUkaStage.fireExitCmd();
             return;
         }
     }
@@ -231,6 +231,13 @@ public class JUkaStage implements ActionListener,ImageObserver
     }
 
   // Other | 杂项
+    /**
+     * 构造函数, 不能被调用.
+     */
+    private JUkaStage()
+    {
+    }
+
     /**
      * @deprecated 此方法目前仅用于调试
      */
