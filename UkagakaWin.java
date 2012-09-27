@@ -7,7 +7,7 @@ package jukagaka.shell;
 
 import jukagaka.*;
 
-import javax.swing.JDialog;
+//import javax.swing.JDialog;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -20,7 +20,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.Hashtable;
 import com.sun.awt.AWTUtilities;
 
-public class UkagakaWin extends JDialog
+public class UkagakaWin extends JUkaWindow
 {
 
   // Layer & Buffer | 变更图层及缓存
@@ -244,6 +244,7 @@ public class UkagakaWin extends JDialog
      * <p>裁剪</p>
      * <p>此方法将根据缓存和图层裁剪窗体, 将透明的像素镂空或去除.</p>
      */
+    @Override
     public void clip()
     {
         int i;

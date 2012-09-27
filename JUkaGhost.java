@@ -9,7 +9,7 @@ import jukagaka.*;
 
 public class JUkaGhost extends JUkaComponent
 {
-  // Start-up | 启动器
+  // Trigger | 触发器
     /**
      * <p>此方法不包含任何代码, 仅仅作为 token 存在.</p>
      * <p>(*) 任何扩展此类的子类都必须以此方法签名重写该方法<br>

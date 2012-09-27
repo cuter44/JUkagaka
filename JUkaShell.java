@@ -3,9 +3,10 @@
  * @version v120827
  */
 
-package jukagaka.shell;
+package jukagaka.shell.cyaushell;
 
 import jukagaka.*;
+import jukagaka.shell.*;
 
 import java.io.File;
 import java.io.Serializable;
@@ -13,7 +14,7 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 import java.awt.Image;
 import java.awt.geom.Area;
-import javax.swing.JDialog;
+//import javax.swing.JDialog;
 
 public class JUkaShell extends JUkaComponent implements Serializable
 {
@@ -42,7 +43,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * 此数据域记录当前可用的气球队列
      */
-    private ArrayList<JDialog> winList = null;
+    private ArrayList<JUkaWindow> winList = null;
     /**
      * 此数据域记录承载春菜的 Frame
      */
@@ -68,9 +69,12 @@ public class JUkaShell extends JUkaComponent implements Serializable
     {
         JUkaShell newShell = new JUkaShell();
 
-        newShell.winList = new ArrayList<JWindow>(16);
+        // 初始化窗体队列
+        newShell.winList = new ArrayList<JUkaWindow>(16);
+        // 初始化 UkagakaWin
         newShell.ukagakaWin = UkagakaWin.createUkagaka(argIniFile, argHtImages, argHtMasks);
         newShell.winList.add(newShell.ukagakaWin);
+        // 初始化 BalloonWin
         newShell.mainBalloon = BalloonWin.createBalloon(argIniFile, argHtImages, argHtMasks);
         newShell.winList.add(newShell.mainBalloon);
 
@@ -86,7 +90,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * 任何对已弃置 Shell 的操作请求都将被驳回或无效.<br>
      * (*) 此类的扩展者应按照该签名重写方法, 并在自撰的代码<b>后</b>调用父类的方法</p>
      */
-    protected static void destroyShell(JUkaShell argShell)
+    protected static void discardShell(JUkaShell argShell)
     {
 
         argShell.discarded = true;
@@ -100,7 +104,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
      */
     protected void discard()
     {
-        JUkaShell.destroyShell(this);
+        JUkaShell.discardShell(this);
         return;
     }
 
@@ -178,16 +182,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return;
     }
 
-  // Balloon Control | 气球操纵指令
-    // STILL IN PROCESS, WILL COME OUT SOON
-
-  // General for Ukagaka & Balloon | Win 通用操纵命令
-    // STILL IN PROCESS, WILL COME OUT SOON
-
-    //public void clip(JWindow argTargetWin)
-    //public void repaint(JWindow argTargetWin)
-
-  // Monopoly | 独占使用(吐槽坑爹的爱词霸)
+  // Ukagaka Monopoly | 独占使用(吐槽坑爹的爱词霸)
     /**
      * 此数据域记录目前使用中的 Key
      */
@@ -237,7 +232,93 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return((key ^ this.preservedKey) == 0);
     }
 
-  // Start-up | 启动器
+  // Balloon Control | 气球操纵指令
+    // STILL IN PROCESS, WILL COME OUT SOON
+
+  // General for Ukagaka & Balloon | Win 通用操纵命令
+    /**
+     * <p>要求重绘指定的窗体</p>
+     */
+    public void fireRepaint(int argWinID)
+    {
+        try
+        {
+            this.fireRepaint(this.winList.get(argWinID));
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+            System.err.println(ex);
+            System.err.println("Error: JUkaShell.fireReprint(): 无效下标索引, 函数已退出");
+            return;
+        }
+
+        return;
+    }
+
+    /**
+     * <p>要求重绘指定的窗体</p>
+     */
+    public boolean fireRepaint(JUkaWindow argWin)
+    {
+        if (argWin == null)
+        {
+            System.err.println("Error: JUkaShell.fireRepaint(): 空指针参数, 函数已退出");
+            return(false);
+        }
+
+        if (!this.winList.contains(argWin))
+        {
+            System.err.println("Warn: JUkaShell.fireRepaint(): 指定窗体未包含在列表中");
+            return(false);
+        }
+
+        argWin.repaint();
+
+        return(true);
+    }
+
+    /**
+     * <p>要求裁剪指定的窗体</p>
+     */
+    public void fireClip(int argWinID)
+    {
+        try
+        {
+            this.fireClip(this.winList.get(argWinID));
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+            System.err.println(ex);
+            System.err.println("Error: JUkaShell.fireClip(): 无效下标索引, 函数已退出");
+            return;
+        }
+
+        return;
+    }
+
+    /**
+     * <p>要求裁剪指定的窗体</p>
+     */
+    public boolean fireClip(JUkaWindow argWin)
+    {
+        if (argWin == null)
+        {
+            System.err.println("Error: JUkaShell.fireClip(): 空指针参数, 函数已退出");
+            return(false);
+        }
+
+        if (!this.winList.contains(argWin))
+        {
+            System.err.println("Warn: JUkaShell.fireClip(): 指定窗体未包含在列表中");
+            return(false);
+        }
+
+        argWin.clip();
+
+        return(true);
+    }
+
+  // Launcher | 触发器
     /**
      * <p>此方法目前不包含任何代码, 仅仅作为 token 存在.</p>
      * <p>子类的该方法会在 JUkagaka 启动时被调用, 组件可以趁此完成初始化工作<br>
@@ -268,6 +349,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     protected JUkaShell()
     {
     }
+
     /**
      * @deprecated 此方法目前仅用于调试
      */

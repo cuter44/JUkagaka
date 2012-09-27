@@ -2,19 +2,19 @@
  * @version v120826
  * @author "Galin"<cuter44@qq.com>
  */
-package jukagaka.shell;
+package jukagaka.shell.cyaushell;
 
 import jukagaka.*;
+import jukagaka.shell.*;
 
 import java.util.Hashtable;
 import java.awt.Image;
 import java.awt.geom.Area;
-import javax.swing.JWindow;
 
-public class SampleShell extends JUkaShell
+public class CyauShell extends JUkaShell
 {
 
-    public static final String DEFAULT_INI = JUkaUtility.getProgramPath() + "shell/SampleShell/SampleShell.ini";
+    public static final String DEFAULT_INI = JUkaUtility.getProgramPath() + "shell/cyaushell/SampleShell.ini";
     public static Hashtable<String, Image> hashImages = null;
     public static Hashtable<String, Area> hashMasks = null;
 
@@ -62,7 +62,7 @@ public class SampleShell extends JUkaShell
         // 加载图像资源
         try
         {
-            Class classOfSampleShell = Class.forName("jukagaka.shell.SampleShell");
+            Class classOfSampleShell = Class.forName("jukagaka.shell.cyaushell.CyauShell");
             JUkaShellCtrl.prefetchImageResource(classOfSampleShell, SampleShell.DEFAULT_INI, "images", true);
         }
         catch (Exception ex)
@@ -82,10 +82,10 @@ public class SampleShell extends JUkaShell
     public static void main(String[] args)
     {
         //// 用于测试 Shell 装/卸载 及 图像加载时间的代码.
-        //System.out.println(SampleShell.installComponent());
+        System.out.println(SampleShell.installComponent());
         try
         {
-            Class classOfSampleShell = Class.forName("jukagaka.shell.SampleShell");
+            Class classOfSampleShell = Class.forName("jukagaka.shell.cyaushell.CyauShell");
             JUkaShellCtrl.prefetchImageResource(classOfSampleShell, SampleShell.DEFAULT_INI, "images", true);
         }
         catch (Exception ex)
@@ -106,16 +106,23 @@ public class SampleShell extends JUkaShell
                                            //JUkaStage.eventListener);
 
         // 用于测试 UkagagkaWin 能否正确缓存的方法
-        UkagakaWin testUkaWin = UkagakaWin.createUkagaka(SampleShell.DEFAULT_INI, hashImages, hashMasks);
-        testUkaWin.setVisible(true);
-        //testUkaWin.repaint();
-        testUkaWin.clip();
-        testUkaWin.setLocation(1250, 625);
+        //UkagakaWin testUkaWin = UkagakaWin.createUkagaka(SampleShell.DEFAULT_INI, hashImages, hashMasks);
+        //testUkaWin.setVisible(true);
+        ////testUkaWin.repaint();
+        //testUkaWin.clip();
+        //testUkaWin.setLocation(1250, 625);
 
-        BalloonWin testBallWin = BalloonWin.createBalloon(SampleShell.DEFAULT_INI, hashImages, hashMasks);
-        testBallWin.setVisible(true);
-        testBallWin.repaint();
-        testBallWin.clip();
+        //BalloonWin testBallWin = BalloonWin.createBalloon(SampleShell.DEFAULT_INI, hashImages, hashMasks);
+        //testBallWin.setVisible(true);
+        //testBallWin.repaint();
+        //testBallWin.clip();
+
+        //testBallWin = BalloonWin.createBalloon(SampleShell.DEFAULT_INI, hashImages, hashMasks);
+        //testBallWin.setSize(140, 100);
+        //testBallWin.setVisible(true);
+        //testBallWin.repaint();
+        //testBallWin.clip();
+
 
         return;
     }

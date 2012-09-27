@@ -17,10 +17,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionAdapter;
 import java.util.Hashtable;
-import javax.swing.JDialog;
+//import javax.swing.JDialog;
 import com.sun.awt.AWTUtilities;
 
-public class BalloonWin extends JDialog
+public class BalloonWin extends JUkaWindow
 {
   // Images & painting | 图像及绘制功能
     // 以下数据域及方法暂不提供
@@ -101,15 +101,22 @@ public class BalloonWin extends JDialog
             Image.SCALE_SMOOTH
         );
 
-        this.transMask = JUkaShellCtrl.calculateMask(this.transImage);
+        /* 下面有两种策略获得新蒙版,
+         * 两者在结果上的差别是几何变换时也许会有锯齿, 不过在2x以下放大倍数下肉眼很难看出来.
+         * 不过从算法分析上说, 几何转换会比重新计算快至少一个级别
+         * 重新计算 = O(n*m*x) 几何转换 = O(n+m) x 是放大倍数.
+         */
+        // 重新计算策略
+        // this.transMask = JUkaShellCtrl.calculateMask(this.transImage);
 
-        //this.transMask = this.originMask.createTransformedArea(
-            //new AffineTransform(
-                //(double)winSize.width/imgWidth, 0,   // ScaleX, SheerY
-                //0, (double)winSize.height/imgHeight, // SheerX, ScaleY
-                //0, 0                                 // TransXY
-            //)
-        //);
+        // 几何转换策略
+        this.transMask = this.originMask.createTransformedArea(
+            new AffineTransform(
+                (double)winSize.width/imgWidth, 0,   // ScaleX, SheerY
+                0, (double)winSize.height/imgHeight, // SheerX, ScaleY
+                0, 0                                 // TransXY
+            )
+        );
 
         // 输出路径的代码, 调试用
         //PathIterator iter = this.transMask.getPathIterator(null);
@@ -171,6 +178,7 @@ public class BalloonWin extends JDialog
         return;
     }
 
+    @Override
     public void clip()
     {
         if (this.transOutdated)

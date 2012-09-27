@@ -27,14 +27,16 @@ public class JUkaStage implements ActionListener,ImageObserver
 {
   // Ststic Data | 静态数据域
     /**
-     * <p>此数据域登记已加载的</p>
+     * <p>此数据域登记已加载的组件列表</p>
      */
     private static ArrayList<Class> registeredShell, registeredGhost, registeredPlugin;
-    //private static ArrayList<JUkaComponent> activeShell, activeGhost, activePlugin;
     /**
-     * 此数据域记录程序的托盘图标引用
+     * <p>此数据域记录活动的组件列表</p>
+     * <p>对于用户来说操作的单位是 Shell, 允许一个 ghost 控制多个 shell,<br>
+     * 一个 shell 只能有一个主控 ghost, 其中的指向性问题我尽量解决清楚吧...</p>
      */
-    private static TrayIcon stageTray = null;
+    private static ArrayList<JUkaShell> activeShell;
+    private static ArrayList<JUkaGhost> activeGhost;
     /**
      * 此数据域记录 JUkaStage 的消息侦听器
      */
@@ -42,12 +44,26 @@ public class JUkaStage implements ActionListener,ImageObserver
 
   // Tray | 托盘
     /**
-     * 此方法用于获取系统托盘图标的引用
+     * 此数据域记录程序的托盘图标引用
+     */
+    private static TrayIcon stageTray = null;
+
+    /**
+     * <p>获取系统托盘图标的引用</p>
      */
     public static TrayIcon getStageTray()
     {
         return(JUkaStage.stageTray);
     }
+
+    /**
+     * <p>获取系统托盘图标的引用</p>
+     */
+    public static PopupMenu getTrayMenu()
+    {
+        return(JUkaStage.stageTray.getPopupMenu());
+    }
+
     /**
      * 此方法用于初始化系统托盘图标
      */
@@ -69,13 +85,24 @@ public class JUkaStage implements ActionListener,ImageObserver
             return(false);
         }
 
+        // 托盘图标自动缩放
         JUkaStage.stageTray.setImageAutoSize(true);
-        JUkaStage.stageTray.setPopupMenu(new PopupMenu());
+        // 挂载托盘图标菜单
+        PopupMenu trayMenu = new PopupMenu();
+        JUkaStage.stageTray.setPopupMenu(trayMenu);
+
+        MenuItem cmdHatch = new MenuItem("孵化箱...");
+        cmdHatch.addActionListener(JUkaStage.eventListener);
+        cmdHatch.setActionCommand("cmdHatch");
+        trayMenu.add(cmdHatch);
+
+        // 分隔符
+        trayMenu.add(new MenuItem("-"));
 
         MenuItem cmdExit = new MenuItem("退出");
         cmdExit.addActionListener(JUkaStage.eventListener);
         cmdExit.setActionCommand("cmdExit");
-        JUkaStage.getStageTray().getPopupMenu().add(cmdExit);
+        trayMenu.add(cmdExit);
 
         return(true);
     }

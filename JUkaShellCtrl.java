@@ -216,7 +216,6 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
                         0, 1, // SheerX, ScaleY
                         x, y) // TransXY
                 );
-            System.out.println(tmpMask.isEmpty());
             htMasks.put(buffer[0], tmpMask);
         }
 
