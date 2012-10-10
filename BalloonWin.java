@@ -22,23 +22,7 @@ import com.sun.awt.AWTUtilities;
 
 public class BalloonWin extends JUkaWindow
 {
-  // Images & painting | 图像及绘制功能
-    // 以下数据域及方法暂不提供
-    //private Hashtable<String, Image> htImages = null;
-    //private Hashtable<String, Area> htMasks = null;
-
-    ///**
-     //* <p>设定新的图像库引用</p>
-     //* <p>此方法在调用 createUkagaka() 时即自动被调用, 通常不需要手动地调用之</p>
-     //*/
-    //public void setImageLib(Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
-    //{
-        //this.htImages = argHtImages;
-        //this.htMasks = argHtMasks;
-
-        //return;
-    //}
-
+  // Image APIs | 图像设定用API
     /**
      * 此二数据域记录原始(缩放前)的图形及蒙版引用
      */
@@ -57,26 +41,7 @@ public class BalloonWin extends JUkaWindow
         return;
     }
 
-    ///**
-     //* <p>从库中抽取对应 argHashKey 的背景图像及蒙版</p>
-     //* <p></p>
-     //*/
-    //public boolean setBkImage(String argHashKey, Hashtable<String, Image> htImages, Hashtable<String, Area> htMasks)
-    //{
-        //try
-        //{
-            //this.setBkImage(htImages.get(argHashKey), htMasks.get(argHashKey));
-        //}
-        //catch (Exception ex)
-        //{
-            //System.err.println(ex);
-            //return(false);
-        //}
-
-        //return(true);
-    //}
-
-  // paint | 绘制
+  // Paint | 绘制背景
     /**
      * 标记缓存有效性
      */
@@ -88,7 +53,7 @@ public class BalloonWin extends JUkaWindow
     private Image transImage = null;
     private Area transMask = null;
 
-    public void computeTrans()
+    public void updateTrans()
     {
         Dimension winSize = this.getSize();
         //System.out.println(this.originImage);
@@ -118,7 +83,7 @@ public class BalloonWin extends JUkaWindow
             )
         );
 
-        // 输出路径的代码, 调试用
+        // 调试用, 输出路径的代码
         //PathIterator iter = this.transMask.getPathIterator(null);
         //float[] points = new float[6];
 
@@ -173,7 +138,7 @@ public class BalloonWin extends JUkaWindow
     {
         super.paint(g);
         if (this.transOutdated)
-            this.computeTrans();
+            this.updateTrans();
         g.drawImage(this.transImage, 0, 0, this);
         return;
     }
@@ -182,7 +147,7 @@ public class BalloonWin extends JUkaWindow
     public void clip()
     {
         if (this.transOutdated)
-            this.computeTrans();
+            this.updateTrans();
         AWTUtilities.setWindowShape(this, this.transMask);
         return;
     }
@@ -203,6 +168,35 @@ public class BalloonWin extends JUkaWindow
     public static BalloonWin createBalloon(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         BalloonWin newBalloon = new BalloonWin();
+        newBalloon.initalize(argIniFile, argHtImages, argHtMasks);
+        return(newBalloon);
+    }
+
+    /**
+     * <p>命令BalloonWin执行自初始化</p>
+     * <p>事实上此方法调用
+     * BalloonWin.initalizeInstance(this, argIni, argHtImages, argHtMasks)
+     * 执行实际的初始化操作</p>
+     */
+    public void initalize(String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
+        BalloonWin.initalizeInstance(this, argIni, argHtImages, argHtMasks);
+    }
+
+    /**
+     * <p>初始化气球窗体</p>
+     * <p>使用指定的 ini 文件中 balloon 段预初始化<br>
+     * <ul>有效的字段有以下这些
+     * <li>width=正整数 表示新气球的宽度(建议定义)
+     * <li>height=正整数 表示新气球的高度(建议定义)
+     * <li>background=字符串 取自拟加载图像节任一带有图层号的键, 表示新气球的背景画像<br>
+     *     背景画像会自动被缩放到整个窗体. 更多的排布方式正在开发中.
+     * </ul></p>
+     * @param argIni 表示记录有初始化信息的 ini 文件
+     * @return 一个空白的气球引用
+     */
+    public static BalloonWin initalizeInstance(BalloonWin argBalloon, String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
         Hashtable<String, String> htInitInfo = JUkaUtility.iniReadSector(argIniFile, "balloon");
 
         int h = 0,w = 0;
@@ -213,59 +207,68 @@ public class BalloonWin extends JUkaWindow
             w = Integer.parseInt(htInitInfo.get("width"));
         if (htInitInfo.containsKey("height"))
             h = Integer.parseInt(htInitInfo.get("height"));
-        newBalloon.setSize(w,h);
+        argBalloon.setSize(w,h);
 
         // 背景
         if (htInitInfo.containsKey("background"))
-            newBalloon.setBkImage(argHtImages.get(htInitInfo.get("background")), argHtMasks.get(htInitInfo.get("background")));
+            argBalloon.setBkImage(argHtImages.get(htInitInfo.get("background")), argHtMasks.get(htInitInfo.get("background")));
 
         // 去标题栏
-        newBalloon.setUndecorated(true);
+        argBalloon.setUndecorated(true);
 
-        // 可拖动
-        newBalloon.setDragable();
+        // 可拖动(可选)
+        //newBalloon.setDragable(true);
 
-        return(newBalloon);
+        return(argBalloon);
     }
 
     /**
-     * <p>此方法使窗体变得可拖动</p>
-     * <p>调用一次即可. <br>
-     * (!)此过程不可逆, 也就是说, 不可能使它重新变得不可拖动</p>
+     * 构造函数...但不应该被使用
      */
-  // Other | 杂项
-    /**
-     * 变更大小时要求重绘
-     */
-    @Override
-    public void setSize(int width, int height)
+    protected BalloonWin()
     {
-        super.setSize(width, height);
-        this.transOutdated = true;
-        return;
     }
 
+  // Dragable | 窗体可拖动化
     /**
      * 此二数据域用于记录鼠标相对坐标, 为拖动窗体提供支持.
      */
-    private int relativeX, relativeY;
+    private int relativeX,relativeY;
+    /**
+     * 指示拖动可用性的开关, true = ON, false = OFF
+     */
+    private boolean dragSwitch = false;
+    /**
+     * 指示拖动侦听器已设定
+     */
+    private boolean dragSetup = false;
 
-    @Override
-    public void setSize(Dimension d)
+    /**
+     * <p>此方法更改窗体的可拖动属性</p>
+     * <p>此方法在首次被调用时将在窗体实例上安装拖动侦听器, 该侦听器在窗体销毁前
+     * 一直有效, 但是否响应鼠标拖动由 dragSwitch 开关决定.<br>
+     * </p>
+     * @param dragSwitch 指示拖动功能的开关状态
+     */
+    public void setDragable(boolean argDragSwitch)
     {
-        this.setSize(d.width, d.height);
-    }
+        this.dragSwitch = argDragSwitch;
 
-    private void setDragable()
-    {
+        if (this.dragSetup)
+            return;
+        this.dragSetup = true;
+
         // 侦听鼠标按下, 记录按下时的位置.
         this.addMouseListener(
             new MouseAdapter()
             {
                 public void mousePressed(MouseEvent ev)
                 {
-                    relativeX = ev.getX();
-                    relativeY = ev.getY();
+                    if (dragSwitch)
+                    {
+                        relativeX = ev.getX();
+                        relativeY = ev.getY();
+                    }
                     return;
                 }
             }
@@ -277,26 +280,47 @@ public class BalloonWin extends JUkaWindow
             {
                 public void mouseDragged(MouseEvent ev)
                 {
-                    // 仅响应左键拖动
-                    if (ev.getModifiers()!=16)
+                    if (!dragSwitch)
                         return;
+                    // 调试用, 可以在标准输出查看对应按键的掩码
+                    //System.out.println(ev.getModifers());
 
-                    int absoluteX = ev.getXOnScreen();
-                    int absoluteY = ev.getYOnScreen();
-                    setLocation(absoluteX - relativeX, absoluteY - relativeY);
+                    // 仅响应左键拖动
+                    // 要响应其他按键修改掩码即可
+                    if (ev.getModifiers() == 16)
+                    {
+                        int absoluteX = ev.getXOnScreen();
+                        int absoluteY = ev.getYOnScreen();
+                        setLocation(absoluteX - relativeX, absoluteY - relativeY);
+                    }
+
                     return;
                 }
             }
         );
+
+        return;
     }
 
+  // Resize(@Override) | 窗体大小变更(重写)
     /**
-     * 构造函数...但不应该被使用
+     * 变更大小时要求重绘
      */
-    protected BalloonWin()
+    @Override
+    public void setSize(int width, int height)
     {
+        super.setSize(width, height);
+        this.transOutdated = true;
+        return;
     }
 
+    @Override
+    public void setSize(Dimension d)
+    {
+        this.setSize(d.width, d.height);
+    }
+
+  // Other | 杂项
     /**
      * @deprecated 此方法目前仅用于调试用途
      */

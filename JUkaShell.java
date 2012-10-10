@@ -34,10 +34,23 @@ public class JUkaShell extends JUkaComponent implements Serializable
 
     /**
      * <p>hashImages 和 hashShape 数据域用于挂载缓冲的图像资源</p>
-     * <p>此二数据域由 JUkaShellCtrl.prefetchImageResource() 负责写入</p>
+     * <p>此二数据域由 JUkaShellCtrl.prefetchImageResource() 负责写入.
+     * 之所以定义为 public static 是为了高效读写, 这样做违反了封装原则,
+     * 因为存在被其它代码非法修改的可能性, 但我相信任何认真做事的人都会遵守
+     * 游戏规则:<br>
+     * 读操作: 请随意<br>
+     * 赋值操作: 绝对禁止<br>
+     * clear()操作: 危险请慎用<br>
+     * put()/remove()操作: 请确保不会内存泄漏</p>
      */
     public static Hashtable<String, Image> hashImages = null;
     public static Hashtable<String, Area> hashMasks = null;
+
+    ///**
+     //* <p></p>
+     //*/
+    //public static String serialImageResourcePath = null;
+    //public static String serialImageResourceSector = null;
 
   // Instance Data | 实例数据域
     /**
@@ -233,7 +246,9 @@ public class JUkaShell extends JUkaComponent implements Serializable
     }
 
   // Balloon Control | 气球操纵指令
-    // STILL IN PROCESS, WILL COME OUT SOON
+    //   ∧
+    //  /｜\  TODO: 工事中...
+    // /_＾_\
 
   // General for Ukagaka & Balloon | Win 通用操纵命令
     /**
