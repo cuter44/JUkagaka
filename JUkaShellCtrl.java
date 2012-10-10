@@ -124,12 +124,12 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
      * overwrite 的值决定是否排空这两个哈希表(注意是排空而不是新建一个哈希表).
      * 如果此二数据域的值为 null 则自动新建并赋值到所述数据域中, 此时 overwrite
      * 的值不起作用<br>
-     * 虽然允许以 alterName1,[layer],x,y=alterName2 的形式进行映射, 但除非你知道
-     * 自己要做什么, 否则建议不要这样做, 盖因蒙版的 x,y 位移会被累计(相对于原
-     * 图像), 这可能会导致裁剪窗口时出现问题.<br>
-     * 注意此方法将等号前的部分而不仅仅是 alterName 作为哈希映射的键.</p>
+     * 虽然允许以 alterName1,[layer],x,y=anotherKey 的形式进行映射, 但除非你清楚
+     * 自己要做什么, 否则建议不要这样做, 盖因anotherKey中蒙版的 x,y 平移量会被累计,
+     * 而原始图像不会, 这可能会导致裁剪窗口时出现问题.<br>
+     * 注意此方法将等号前的部分而不仅仅是 alterName 作为哈希映射的键(key).</p>
      * @param argShell 指定要为之缓冲图像的 Shell 类
-     * @param argIniFile 指定要从中读取的ini文件, 以对于 JUkaUtility.getProgramPath() 的 UNIX 相对路径表示.
+     * @param argIniFile 指定要从中读取的ini文件, 以 UNIX 绝对路径表示.
      * @param argSector 指定要读取的节
      * @param overwrite 为 true 时在读取前清空哈希表, 否则跳过此步骤
      */
@@ -222,6 +222,9 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
         return;
     }
 
+    /**
+     * <p>此方法以行扫描的形式计算参数图像的蒙版, 也就是图像中不透明像素的区域</p>
+     */
     public static Area calculateMask(Image argImage)
     {
         int i,j,x=0,y=0;

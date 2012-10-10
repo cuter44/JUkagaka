@@ -40,6 +40,8 @@ public class UkagakaWin extends JUkaWindow
     private Area cacheMask = null;
     /**
      * <p>此二数据域用于记录 Shell 图像/蒙版库的引用</p>
+     * <p>数据域内容以引用形式获取自宿主Shell, 因此宿主Shell图像库的变更会自动
+     * 反映到此数据域</p>
      */
     private Hashtable<String, Image> htImages = null;
     private Hashtable<String, Area> htMasks = null;
@@ -49,6 +51,18 @@ public class UkagakaWin extends JUkaWindow
      * 请参见<a href="buildBackBuffer">buildBackBuffer()</a>
      */
     private int bufferLayer = 3;
+
+    /**
+     * <p>设定新的图像库引用</p>
+     * <p>此方法在调用 createUkagaka() 时即自动被调用, 通常不需要手动地调用之</p>
+     */
+    public void setImageLib(Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
+        this.htImages = argHtImages;
+        this.htMasks = argHtMasks;
+
+        return;
+    }
 
     /**
      * <p>此方法用于变更缓存层数</p>
@@ -262,18 +276,6 @@ public class UkagakaWin extends JUkaWindow
   // Create/Destroy | 构造/析构
 
     /**
-     * <p>设定新的图像库引用</p>
-     * <p>此方法在调用 createUkagaka() 时即自动被调用, 通常不需要手动地调用之</p>
-     */
-    public void setImageLib(Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
-    {
-        this.htImages = argHtImages;
-        this.htMasks = argHtMasks;
-
-        return;
-    }
-
-    /**
      * <p>生成并返回一个新的春菜(指用于绘制春菜的窗体)</p>
      * <p>生成的新春菜将被指定的 ini 文件中 ukagaka 段预初始化<br>
      * <ul>有效的字段包括以下这些
@@ -283,13 +285,46 @@ public class UkagakaWin extends JUkaWindow
      * <li>image?=字符串 取自拟加载图像节任一带有图层号的键, 指定初始图层序列, ? = 0-7
      * </ul></p>
      * @param argIni 表示记录有初始化信息的 ini 文件
+     * @param argHtImages 欲使用的图像库
+     * @param argHtMasks 对应图像库的蒙版库
      * @return 春菜窗体的引用
      */
     public static UkagakaWin createUkagaka(String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         UkagakaWin newUkaWin = new UkagakaWin();
+        newUkaWin.initalize(argIni, argHtImages, argHtMasks);
+        return(newUkaWin);
+    }
+
+    /**
+     * <p>命令UkagakaWin执行自初始化</p>
+     * <p>事实上此方法调用
+     * UkagakaWin.initalizeInstance(this, argIni, argHtImages, argHtMasks)
+     * 执行实际的初始化操作</p>
+     */
+    public void initalize(String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
+        UkagakaWin.initalizeInstance(this, argIni, argHtImages, argHtMasks);
+    }
+
+    /**
+     * <p>初始化春菜(指用于绘制春菜的窗体)</p>
+     * <p>使用指定的 ini 文件中 ukagaka 段进行初始化<br>
+     * <ul>有效的字段包括以下这些
+     * <li>
+     * <li>width=正整数 指定新春菜的宽度 (必须定义)
+     * <li>height=正整数 指定新春菜的高度 (必须定义)
+     * <li>image?=字符串 取自拟加载图像节任一带有图层号的键, 指定初始图层序列, ? = 0-7
+     * </ul></p>
+     * @param argIni 表示记录有初始化信息的 ini 文件
+     * @param argHtImages 欲使用的图像库
+     * @param argHtMasks 对应图像库的蒙版库
+     * @return 春菜窗体的引用
+     */
+    public static void initalizeInstance(UkagakaWin argUkaWin, String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
         Hashtable<String, String> htInitInfo = JUkaUtility.iniReadSector(argIni, "ukagaka");
-        newUkaWin.setImageLib(argHtImages, argHtMasks);
+        argUkaWin.setImageLib(argHtImages, argHtMasks);
 
         int h = 0,w = 0,i;
 
@@ -299,24 +334,24 @@ public class UkagakaWin extends JUkaWindow
             w = Integer.parseInt(htInitInfo.get("width"));
         if (htInitInfo.containsKey("height"))
             h = Integer.parseInt(htInitInfo.get("height"));
-        newUkaWin.setSize(w,h);
+        argUkaWin.setSize(w,h);
 
         // 图层
         for (i=0; i<=7; i++)
             if (htInitInfo.containsKey("image"+i))
             {
                 String tmpImageName = htInitInfo.get("image"+i);
-                newUkaWin.setImageLayer(tmpImageName);
+                argUkaWin.setImageLayer(tmpImageName);
             }
-        newUkaWin.buildBackBuffer();
+        argUkaWin.buildBackBuffer();
 
         // 可拖动化
-        newUkaWin.setDragable();
+        argUkaWin.setDragable(true);
 
         // 去除标题栏
-        newUkaWin.setUndecorated(true);
+        argUkaWin.setUndecorated(true);
 
-        return(newUkaWin);
+        return;
     }
 
   // Dragable | 窗体可拖动化
@@ -324,22 +359,41 @@ public class UkagakaWin extends JUkaWindow
      * 此二数据域用于记录鼠标相对坐标, 为拖动窗体提供支持.
      */
     private int relativeX,relativeY;
+    /**
+     * 指示拖动可用性的开关, true = ON, false = OFF
+     */
+    private boolean dragSwitch = false;
+    /**
+     * 指示拖动侦听器已设定
+     */
+    private boolean dragSetup = false;
 
     /**
-     * <p>此方法使窗体变得可拖动</p>
-     * <p>调用一次即可. <br>
-     * (!)此过程不可逆, 也就是说, 不可能使它重新变得不可拖动</p>
+     * <p>此方法更改窗体的可拖动属性</p>
+     * <p>此方法在首次被调用时将在窗体实例上安装拖动侦听器, 该侦听器在窗体销毁前
+     * 一直有效, 但是否响应鼠标拖动由 dragSwitch 开关决定.<br>
+     * </p>
+     * @param dragSwitch 指示拖动功能的开关状态
      */
-    private void setDragable()
+    public void setDragable(boolean argDragSwitch)
     {
+        this.dragSwitch = argDragSwitch;
+
+        if (this.dragSetup)
+            return;
+        this.dragSetup = true;
+
         // 侦听鼠标按下, 记录按下时的位置.
         this.addMouseListener(
             new MouseAdapter()
             {
                 public void mousePressed(MouseEvent ev)
                 {
-                    relativeX = ev.getX();
-                    relativeY = ev.getY();
+                    if (dragSwitch)
+                    {
+                        relativeX = ev.getX();
+                        relativeY = ev.getY();
+                    }
                     return;
                 }
             }
@@ -351,17 +405,26 @@ public class UkagakaWin extends JUkaWindow
             {
                 public void mouseDragged(MouseEvent ev)
                 {
-                    // 仅响应左键拖动
-                    if (ev.getModifiers()!=16)
+                    if (!dragSwitch)
                         return;
+                    // 调试用, 可以在标准输出查看对应按键的掩码
+                    //System.out.println(ev.getModifers());
 
-                    int absoluteX = ev.getXOnScreen();
-                    int absoluteY = ev.getYOnScreen();
-                    setLocation(absoluteX - relativeX, absoluteY - relativeY);
+                    // 仅响应左键拖动
+                    // 要响应其他按键修改掩码即可
+                    if (ev.getModifiers() == 16)
+                    {
+                        int absoluteX = ev.getXOnScreen();
+                        int absoluteY = ev.getYOnScreen();
+                        setLocation(absoluteX - relativeX, absoluteY - relativeY);
+                    }
+
                     return;
                 }
             }
         );
+
+        return;
     }
 
   // Other | 杂项
