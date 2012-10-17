@@ -27,7 +27,7 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
     /**
      * 此数据域记录数据文件的名字
      */
-    private static final File LIST_FILE = new File(JUkaUtility.getProgramPath() + "shell/JUkaShell.list");
+    private static final File LIST_FILE = new File(JUkaUtility.getProgramDir() + "/shell/JUkaShell.list");
 
     /**
      * <p>安装 Shell 组件, 由子类调用</p>
@@ -98,7 +98,7 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
     /**
      * <p>返回已安装的 Shell 列表</p>
      * <p>此方法与 JUkaStage 中的同名方法区别在于此方法总是从文件读取的.</p>
-     * @rerurn 返回已安装的 Shell 列表
+     * @return 返回已安装的 Shell 列表
      */
     public static ArrayList<Class> getRegisteredShell()
     {
@@ -115,7 +115,7 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
      * <p>或</p>
      * <p>alterName=fileName</p>
      * <p>其中[]表示可省略的值, layer 表示图层号, x,y 分别表示相对坐标. fileName
-     * 为文件路径, 以对于 JUkaUtility.getProgramPath() 的 UNIX 相对路径表示.
+     * 为文件路径, 以对于 JUkaUtility.getProgramDir() 的 UNIX 相对路径表示.
      * 这两种格式前者用于 UkagakaWin 的绘图, 后者用于 BalloonWin 的绘图.
      * 当然两者可以混用但有时需要遵守某些额外的约定<br>
      * 不建议使用前者的省略形式, 虽然解析器被设计成可以兼容这种模式但不一定会
@@ -180,10 +180,10 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
             }
             else
             {
-                tmpImage = Toolkit.getDefaultToolkit().getImage(JUkaUtility.getProgramPath() + buffer[1]);
+                tmpImage = Toolkit.getDefaultToolkit().getImage(JUkaUtility.getProgramDir() + buffer[1]);
                 if ((tmpMask = JUkaShellCtrl.calculateMask(tmpImage)) == null)
                 {
-                    System.err.println("计算蒙版失败, 图像可能不正确: " + buffer[1]);
+                    System.err.println("Error: JUkaShellCtrl.prefetchImageResource(): 计算蒙版失败, 图像可能不正确: " + buffer[1]);
                     continue;
                 }
                 htImages.put(buffer[1], tmpImage);

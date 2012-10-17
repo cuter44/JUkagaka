@@ -278,12 +278,7 @@ public class UkagakaWin extends JUkaWindow
     /**
      * <p>生成并返回一个新的春菜(指用于绘制春菜的窗体)</p>
      * <p>生成的新春菜将被指定的 ini 文件中 ukagaka 段预初始化<br>
-     * <ul>有效的字段包括以下这些
-     * <li>
-     * <li>width=正整数 指定新春菜的宽度 (必须定义)
-     * <li>height=正整数 指定新春菜的高度 (必须定义)
-     * <li>image?=字符串 取自拟加载图像节任一带有图层号的键, 指定初始图层序列, ? = 0-7
-     * </ul></p>
+     * 详细请参见 static initalizeInstance() 的注释</p>
      * @param argIni 表示记录有初始化信息的 ini 文件
      * @param argHtImages 欲使用的图像库
      * @param argHtMasks 对应图像库的蒙版库
@@ -319,7 +314,6 @@ public class UkagakaWin extends JUkaWindow
      * @param argIni 表示记录有初始化信息的 ini 文件
      * @param argHtImages 欲使用的图像库
      * @param argHtMasks 对应图像库的蒙版库
-     * @return 春菜窗体的引用
      */
     public static void initalizeInstance(UkagakaWin argUkaWin, String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
@@ -373,7 +367,7 @@ public class UkagakaWin extends JUkaWindow
      * <p>此方法在首次被调用时将在窗体实例上安装拖动侦听器, 该侦听器在窗体销毁前
      * 一直有效, 但是否响应鼠标拖动由 dragSwitch 开关决定.<br>
      * </p>
-     * @param dragSwitch 指示拖动功能的开关状态
+     * @param argDragSwitch 指示拖动功能的开关状态
      */
     public void setDragable(boolean argDragSwitch)
     {

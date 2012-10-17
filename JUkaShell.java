@@ -3,7 +3,7 @@
  * @version v120827
  */
 
-package jukagaka.shell.cyaushell;
+package jukagaka.shell;
 
 import jukagaka.*;
 import jukagaka.shell.*;
@@ -30,10 +30,11 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * 简化参数列, 并降低调用者的编程负担.<br>
      * (*) 此类的扩展者应重写这个域</p>
      */
-    public static final String DEFAULT_INI = JUkaUtility.getProgramPath() + "defaultShell.ini";
+    public static final String DEFAULT_INI = JUkaUtility.getProgramDir() + "/defaultShell.ini";
 
     /**
      * <p>hashImages 和 hashShape 数据域用于挂载缓冲的图像资源</p>
+     * <p>(!) static 域无法被继承, 请以相同签名在子类内重写</p>
      * <p>此二数据域由 JUkaShellCtrl.prefetchImageResource() 负责写入.
      * 之所以定义为 public static 是为了高效读写, 这样做违反了封装原则,
      * 因为存在被其它代码非法修改的可能性, 但我相信任何认真做事的人都会遵守
@@ -56,7 +57,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * 此数据域记录当前可用的气球队列
      */
-    private ArrayList<JUkaWindow> winList = null;
+    transient private ArrayList<JUkaWindow> winList = null;
     /**
      * 此数据域记录承载春菜的 Frame
      */
@@ -64,35 +65,138 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * 此数据域记录主菜单的 Frame
      */
-    private BalloonWin mainBalloon = null;
+    transient private BalloonWin mainBalloon = null;
     /**
      * 此数据域标记 Shell 是否已经废弃
      */
-    private boolean discarded = false;
+    transient private boolean discarded = false;
 
-  // Shell Instance | Shell 实例管理
+  // Install/Uninstall | 安装/卸载
+    // 请按照要求重写这些方法.
+    /**
+     * <p>(模板)安装 Shell</p>
+     * <p>Shell 在可以被使用之前, 必须向 JUkaStage 通知其存在<br>
+     * (!) 此类的扩展者应<b>复制</b>这个函数并在 TODO 处填充自撰的代码,
+     *     JUkaShell.java 中原有的部分不能被删减. 否则可能导致运行失败.<br>
+     * </p>
+     * @return <ul>返回值, 大于等于0均表示执行成功, 反之表示失败
+     *  <li>0=正常
+     *  <li>1=该组件已安装
+     *  <li>-1=(未定义错误)
+     *  <li>-2=运行栈上溢
+     *  <li>-3=读写错误
+     * </ul>
+     */
+    public static int install()
+    {
+        // TODO 在此处加入安装前的代码
+        // 比如 检查依赖/冲突关系, EULA, 使用说明, 确认对话框, 建立用户数据 等等.
+        return(JUkaShellCtrl.installComponent());
+    }
+
+    /**
+     * <p>(模板)卸载 Shell</p>
+     * <p>要不再加载某个 Shell, 必须向 JUkaStage 通知注销<br>
+     * (!) 此类的扩展者应<b>复制</b>这个函数并在 TODO 处填充自撰的代码,
+     *     JUkaShell.java 中原有的部分不能被删减. 否则可能导致运行失败.<br>
+     * </p>
+     * @return <ul>返回值, 大于等于0均表示执行成功, 反之表示失败
+     *  <li>0=正常
+     *  <li>1=该组件不在列表中
+     *  <li>-1=(未定义错误)
+     *  <li>-2=运行栈上溢
+     *  <li>-3=读写错误
+     * </ul>
+     */
+    public static int uninstall()
+    {
+        // TODO 在此处加入卸载前的代码
+        // 比如 确认对话框, 清理用户数据, 级联卸载等等.
+        return(JUkaShellCtrl.uninstallComponent());
+    }
+
+  // Shell Constructor & Destructor | Shell 构造/析构
     // 请按照要求重写这些方法.
     /**
      * <p>此方法用于产生一个新的 Shell</p>
      * <p>传入的参数将以引用(而非克隆)被存储于生成的 Wins 中, 也就是说对图像库
      * 所作的修改会自动反映到窗体中.<br>
-     * (*) 此类的扩展者应以 public 重写方法, 并在自撰的代码<b>前</b>调用父类的方法</p>
+     * (*) 此类的扩展者应以 public 重写方法, 并在自撰的代码<b>前</b>调用父类的方法.
+     *     或者什么也不做以直接使用缺省的方法</p>
      */
-    protected static JUkaShell createShell(String argIniFile,Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    public static JUkaShell createShell(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         JUkaShell newShell = new JUkaShell();
 
-        // 初始化窗体队列
-        newShell.winList = new ArrayList<JUkaWindow>(16);
-        // 初始化 UkagakaWin
-        newShell.ukagakaWin = UkagakaWin.createUkagaka(argIniFile, argHtImages, argHtMasks);
-        newShell.winList.add(newShell.ukagakaWin);
-        // 初始化 BalloonWin
-        newShell.mainBalloon = BalloonWin.createBalloon(argIniFile, argHtImages, argHtMasks);
-        newShell.winList.add(newShell.mainBalloon);
+        newShell.initalizeUkagaka(argIniFile, argHtImages, argHtMasks);
+        newShell.initalizeMainBalloon(argIniFile, argHtImages, argHtMasks);
+        newShell.initalizeWinList();
 
         return(newShell);
     }
+
+    /**
+     * 待扩展
+     */
+    public void initalizeUkagaka(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
+        this.ukagakaWin = UkagakaWin.createUkagaka(argIniFile, argHtImages, argHtMasks);
+
+        return;
+    }
+
+    /**
+     * 待扩展
+     */
+    protected void initalizeMainBalloon(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
+        this.mainBalloon = BalloonWin.createBalloon(argIniFile, argHtImages, argHtMasks);
+
+        return;
+    }
+
+    /**
+     * 待扩展
+     */
+    public void initalizeWinList()
+    {
+        this.winList = new ArrayList<JUkaWindow>(16);
+        this.winList.add(this.ukagakaWin);
+        this.winList.add(this.mainBalloon);
+
+        return;
+    }
+
+    // (!) 此API已被取消
+    ///**
+     //* <p>命令 Shell 自初始化</p>
+     //* <p>事实上此方法调用
+     //* JUkaShell.initalizeInstance(this, argIni, argHtImages, argHtMasks)
+     //* 执行实际的初始化操作</p>
+     //*/
+    //protected void initalize(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    //{
+        //JUkaShell.initalize(this. argIniFile, argHtImages, argHtMasks);
+    //}
+
+    // (!) 此API已被取消
+    ///**
+     //* <p>对 Shell 对象进行基础初始化</p>
+     //*/
+    //protected static JUkaShell initalizeInstance(JUkaShell argShell, String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    //{
+        //// 初始化窗体队列
+        //argShell.winList = new ArrayList<JUkaWindow>(16);
+        //// 初始化 UkagakaWin
+        //argShell.ukagakaWin = UkagakaWin.createUkagaka(argIniFile, argHtImages, argHtMasks);
+        //argShell.winList.add(argShell.ukagakaWin);
+        //// 初始化 BalloonWin
+        //argShell.mainBalloon = BalloonWin.createBalloon(argIniFile, argHtImages, argHtMasks);
+        //argShell.winList.add(argShell.mainBalloon);
+
+        //return(argShell);
+    //}
+
 
     /**
      * <p>此方法用于弃置一个 Shell 使之不再有效</p>
@@ -101,7 +205,8 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * 此操作将销毁 Shell 占用的显示资源, 并将其标示为不可用(isDiscarded() 方法
      * 返回 false)<br>
      * 任何对已弃置 Shell 的操作请求都将被驳回或无效.<br>
-     * (*) 此类的扩展者应按照该签名重写方法, 并在自撰的代码<b>后</b>调用父类的方法</p>
+     * (*) 此类的扩展者应按照该签名重写方法, 并在自撰的代码<b>后</b>调用父类的方法.
+     *     或者什么也不做以直接使用缺省的方法</p>
      */
     protected static void discardShell(JUkaShell argShell)
     {
@@ -131,7 +236,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(this.discarded);
     }
 
-  // Ukagaka Control | 春菜操纵命令
+  // Ukagaka Manipulate | 春菜操纵命令
     /* 基于 JLS 规范以及锁定机能的需要对 ukagakaWin 进行屏蔽,
      * 除了第一个命令外, 其余命令将被转发到 JUkaShell.ukagakaWin 的同名方法上执行.
      * 此类的扩展者可以重写并以 super.methodName() 的方式调用以增加自己设定的限制.
@@ -223,7 +328,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * <p>解锁伪春菜以去除其专用保护</p>
      * <p>由于不依赖密钥解锁, 所以这个方法总是成功并且返回 true 的, 这意味着
-     * 可以抢占 Shell, 而且不会有栈信息以还原抢占...<br>
+     * 可以抢占 Shell, 而且不会有栈信息以还原抢占... 原占有者也不会被通知<br>
      * 此类的扩展者应该以 public 覆盖此方法, 并在自撰的代码<strong>后</strong>
      * 调用此方法</p>
      */
@@ -245,7 +350,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return((key ^ this.preservedKey) == 0);
     }
 
-  // Balloon Control | 气球操纵指令
+  // Balloon Manipulate | 气球操纵指令
     //   ∧
     //  /｜\  TODO: 工事中...
     // /_＾_\
@@ -333,7 +438,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(true);
     }
 
-  // Launcher | 触发器
+  // Trigger | 触发器
     /**
      * <p>此方法目前不包含任何代码, 仅仅作为 token 存在.</p>
      * <p>子类的该方法会在 JUkagaka 启动时被调用, 组件可以趁此完成初始化工作<br>

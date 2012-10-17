@@ -14,34 +14,77 @@ import java.util.Hashtable;
 
 public class JUkaUtility
 {
-  //Static Data | 静态数据域
+  // Environment | 环境
     /**
-     * 此数据域记录程序的绝对路径, 由 getProgramPath() 生成和获取.
+     * 此数据域记录程序的绝对路径, 由 getProgramDir() 生成和获取.
      */
-    private static String programPath = null;
+    private static String programDir = null;
 
   // Environment | 环境
     /**
      * <p>此方法生成和返回 programPath</p>
      * <p>此方法本来包含于 JUkaStage 中, 但为了能正确编译而被分离出来<br>
      * 此方法返回 Unix 规范的路径, 纵使它在 Windows 平台上运行<br>
-     * 如果...一定要给出一个例子的话: "/F:/project/v120826/jukagaka/"</p>
+     * 如果...一定要给出一个例子的话: "/F:/project/v120826/jukagaka"</p>
      * @return 返回程序的Unix式绝对路径
      */
-    public static String getProgramPath()
+    public static String getProgramDir()
     {
-        if (JUkaUtility.programPath == null)
+        if (JUkaUtility.programDir == null)
             try
             {
-                JUkaUtility.programPath = Class.forName("jukagaka.JUkaUtility").getClassLoader().getResource("").getPath() + "jukagaka/";
+                JUkaUtility.programDir = Class.forName("jukagaka.JUkaUtility").getClassLoader().getResource("").getPath() + "jukagaka";
             }
             catch (Exception ex)
             {
                 System.err.println(ex);
                 return(null);
             }
-        return(JUkaUtility.programPath);
+        return(JUkaUtility.programDir);
     }
+
+    /**
+     * 此数据域记录用户相关设定的绝对路径, 由 getProgramDir() 生成和获取.
+     */
+    private static String userConfDir = null;
+
+    /**
+     * <p>此方法生成和返回 userConfDir</p>
+     * <p>为了取得良好管理性, 建议在 userConfDir 下建子文件夹存放数据,
+     * 相关内容请参见 JAPI 中 File.mkdirs() 描述.<br>
+     * 注意 userConfPath 指定的目录不一定存在于实际文件系统上, 但 mkdirs()
+     * 已经为此问题给出解决方案.</p>
+     */
+    public static String getUserConfDir()
+    {
+        if (JUkaUtility.userConfDir == null)
+        {
+            String osName = System.getProperty("os.name");
+            float osVersion = Float.parseFloat(System.getProperty("os.version"));
+            String userHome = System.getProperty("user.home");
+
+            // OS 种类判定
+            // Windows 2003
+            if (osName.startsWith("Windows"))
+            {
+                // [Windows 2000, Windows 2003 R2]
+                if (osVersion < 5.9)
+                    return(JUkaUtility.userConfDir = userHome + "/Application Data/jukagaka");
+                // [Windows Vista, Windows 8]
+                if (osVersion < 6.21)
+                    return(JUkaUtility.userConfDir = userHome + "/AppData/jukagaka");
+            }
+            // Linux
+            // TODO: 待补充
+
+            // Unknown OS
+            JUkaUtility.userConfDir = userHome + "/jukagaka";
+            System.err.println("Warn:JUkaUtility.getUserConf():OS判定不能, 假定用户设定目录: " + JUkaUtility.userConfDir);
+        }
+
+        return(JUkaUtility.userConfDir);
+    }
+
 
   // Ini File | ini 文件读取
   // 提供基本的 ini 文件读取功能
@@ -63,7 +106,7 @@ public class JUkaUtility
         }
         catch (FileNotFoundException ex)
         {
-            System.err.println("指定的文件不存在: " + argFileName);
+            System.err.println("Error: JUkaUtility.iniLocatSector():指定的文件不存在: " + argFileName);
             return(null);
         }
         catch (Exception ex)
@@ -189,19 +232,19 @@ public class JUkaUtility
         Hashtable<String, String> ht = null;
 
         // 此代码段用于测试 获取程序路径
-        System.out.println(JUkaUtility.getProgramPath());
+        System.out.println(JUkaUtility.getProgramDir());
 
         // 此代码段用于测试 读取ini
-        //JUkaUtility.iniLocateSector(JUkaUtility.getProgramPath() + "shell/SampleShell/SampleShell.ini", "images");
+        //JUkaUtility.iniLocateSector(JUkaUtility.getProgramDir() + "/shell/SampleShell/SampleShell.ini", "images");
         ht = JUkaUtility.iniReadSector(
-            JUkaUtility.getProgramPath() + "shell/SampleShell/SampleShell.ini",
+            JUkaUtility.getProgramDir() + "/shell/cyaushell/SampleShell.ini",
             "images"
         );
         System.out.println(
             JUkaUtility.iniRead(
-                JUkaUtility.getProgramPath() + "shell/SampleShell/SampleShell.ini",
+                JUkaUtility.getProgramDir() + "/shell/cyaushell/SampleShell.ini",
                 "images",
-                "0000"
+                "balloonbk,0,0,0"
             )
         );
 

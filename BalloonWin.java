@@ -162,7 +162,7 @@ public class BalloonWin extends JUkaWindow
      * <li>background=字符串 取自拟加载图像节任一带有图层号的键, 表示新气球的背景画像<br>
      *     背景画像会自动被缩放到整个窗体. 更多的排布方式正在开发中.
      * </ul></p>
-     * @param argIni 表示记录有初始化信息的 ini 文件
+     * @param argIniFile 表示记录有初始化信息的 ini 文件
      * @return 一个空白的气球引用
      */
     public static BalloonWin createBalloon(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
@@ -192,7 +192,7 @@ public class BalloonWin extends JUkaWindow
      * <li>background=字符串 取自拟加载图像节任一带有图层号的键, 表示新气球的背景画像<br>
      *     背景画像会自动被缩放到整个窗体. 更多的排布方式正在开发中.
      * </ul></p>
-     * @param argIni 表示记录有初始化信息的 ini 文件
+     * @param argIniFile 表示记录有初始化信息的 ini 文件
      * @return 一个空白的气球引用
      */
     public static BalloonWin initalizeInstance(BalloonWin argBalloon, String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
@@ -248,7 +248,7 @@ public class BalloonWin extends JUkaWindow
      * <p>此方法在首次被调用时将在窗体实例上安装拖动侦听器, 该侦听器在窗体销毁前
      * 一直有效, 但是否响应鼠标拖动由 dragSwitch 开关决定.<br>
      * </p>
-     * @param dragSwitch 指示拖动功能的开关状态
+     * @param argDragSwitch 指示拖动功能的开关状态
      */
     public void setDragable(boolean argDragSwitch)
     {
