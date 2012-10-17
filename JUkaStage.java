@@ -71,7 +71,7 @@ public class JUkaStage implements ActionListener,ImageObserver
     {
         try
         {
-            Image imgTray = Toolkit.getDefaultToolkit().getImage(JUkaUtility.getProgramPath() + "TrayIcon.jpg");
+            Image imgTray = Toolkit.getDefaultToolkit().getImage(JUkaUtility.getProgramDir() + "/TrayIcon.jpg");
             MediaTracker tmpMediaTracker = new MediaTracker(new JLabel());
             tmpMediaTracker.addImage(imgTray, 0);
             tmpMediaTracker.waitForAll();

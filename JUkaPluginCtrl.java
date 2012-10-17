@@ -15,7 +15,7 @@ public class JUkaPluginCtrl extends JUkaComponentCtrl
     /**
      * 此数据域记录数据文件的名字
      */
-    private static final File LIST_FILE = new File(JUkaUtility.getProgramPath() + "plugin/JUkaPlugin.list");
+    private static final File LIST_FILE = new File(JUkaUtility.getProgramDir() + "/plugin/JUkaPlugin.list");
     /**
      * <p>安装 Plugin 组件, 由子类调用</p>
      * <p>(!) 此方法不包含传入参数以增强安全性.<br>
@@ -85,7 +85,7 @@ public class JUkaPluginCtrl extends JUkaComponentCtrl
     /**
      * <p>返回已安装的 Plugin 列表</p>
      * <p>此方法与 JUkaStage 中的同名方法区别在于此方法总是从文件读取的.</p>
-     * @rerurn 返回已安装的 Plugin 列表
+     * @return 返回已安装的 Plugin 列表
      */
     public static ArrayList<Class> getRegisteredPlugin()
     {

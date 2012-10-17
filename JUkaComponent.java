@@ -5,6 +5,8 @@
 
 package jukagaka;
 
+import javax.swing.ImageIcon;
+
 public class JUkaComponent
 {
     /**

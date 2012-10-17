@@ -3,6 +3,9 @@
  * @author "Galin"<cuter44@qq.com>
  * 插件管理的GUI.
  */
+
+package jukagaka.plugin;
+
 class JUkaCompMgrGUI extends JUkaPlugin
 {
     /**
