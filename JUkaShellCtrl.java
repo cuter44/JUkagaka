@@ -5,7 +5,7 @@
 
 package jukagaka;
 
-import jukagaka.shell.*;
+//import jukagaka.shell.*;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -19,7 +19,7 @@ import java.awt.MediaTracker;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.AffineTransform;
-import javax.swing.JLabel;
+import javax.swing.JDialog;
 
 public class JUkaShellCtrl extends JUkaComponentCtrl
 {
@@ -232,7 +232,7 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
         // 准备图像
         try
         {
-            MediaTracker tmpMediaTracker=new MediaTracker(new JLabel());
+            MediaTracker tmpMediaTracker=new MediaTracker(JUkaShellCtrl.reservedWin);
             tmpMediaTracker.addImage(argImage, 0);
             tmpMediaTracker.waitForAll();
         }
@@ -270,8 +270,8 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
             //System.out.print(tmpPixels[i] + " ");
         //System.out.println();
 
-        height = argImage.getHeight(JUkaStage.eventListener);
-        width = argImage.getWidth(JUkaStage.eventListener);
+        height = argImage.getHeight(JUkaShellCtrl.reservedWin);
+        width = argImage.getWidth(JUkaShellCtrl.reservedWin);
 
         // 不能加载图像时
         if (height == 0)
@@ -307,6 +307,11 @@ public class JUkaShellCtrl extends JUkaComponentCtrl
     }
 
   // Other | 杂项
+    /**
+     * <p>目前这个窗体还没有用途, 仅用于消除模块依赖</p>
+     */
+    static JDialog reservedWin = new JDialog();
+
     /**
      * @deprecated 此方法目前仅用于调试
      */

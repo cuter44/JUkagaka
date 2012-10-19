@@ -109,7 +109,7 @@ public class UkagakaWin extends JUkaWindow
                     this.imageLayer[i],
                     this.coordinate[i][0],
                     this.coordinate[i][1],
-                    JUkaStage.eventListener
+                    this
                 );
                 this.cacheMask.add(maskLayer[i]);
             }
@@ -248,7 +248,7 @@ public class UkagakaWin extends JUkaWindow
                     this.imageLayer[i],
                     this.coordinate[i][0],
                     this.coordinate[i][1],
-                    JUkaStage.eventListener
+                    this
                 );
 
         return;
@@ -288,7 +288,7 @@ public class UkagakaWin extends JUkaWindow
     public static UkagakaWin createUkagaka(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         UkagakaWin newUkaWin = new UkagakaWin();
-        newUkaWin.initalize(argIni, argHtImages, argHtMasks);
+        newUkaWin.initalize(argIniFile, argHtImages, argHtMasks);
         return(newUkaWin);
     }
 
@@ -298,9 +298,9 @@ public class UkagakaWin extends JUkaWindow
      * UkagakaWin.initalizeInstance(this, argIni, argHtImages, argHtMasks)
      * 执行实际的初始化操作</p>
      */
-    public void initalize(String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    public void initalize(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
-        UkagakaWin.initalizeInstance(this, argIni, argHtImages, argHtMasks);
+        UkagakaWin.initalizeInstance(this, argIniFile, argHtImages, argHtMasks);
     }
 
     /**
