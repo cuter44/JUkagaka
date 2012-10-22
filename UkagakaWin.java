@@ -109,7 +109,7 @@ public class UkagakaWin extends JUkaWindow
                     this.imageLayer[i],
                     this.coordinate[i][0],
                     this.coordinate[i][1],
-                    JUkaStage.eventListener
+                    this
                 );
                 this.cacheMask.add(maskLayer[i]);
             }
@@ -187,8 +187,8 @@ public class UkagakaWin extends JUkaWindow
             y = 0;
         }
 
-        if (separatedKey[0].equals(""))
-            return(this.setImageLayer(null,layer,0,0));
+        //if (separatedKey[0].equals(""))
+            //return(this.setImageLayer(null,layer,0,0));
         return(this.setImageLayer(argHashKey, layer, x, y));
     }
 
@@ -248,7 +248,7 @@ public class UkagakaWin extends JUkaWindow
                     this.imageLayer[i],
                     this.coordinate[i][0],
                     this.coordinate[i][1],
-                    JUkaStage.eventListener
+                    this
                 );
 
         return;
@@ -278,16 +278,19 @@ public class UkagakaWin extends JUkaWindow
     /**
      * <p>生成并返回一个新的春菜(指用于绘制春菜的窗体)</p>
      * <p>生成的新春菜将被指定的 ini 文件中 ukagaka 段预初始化<br>
+
      * 详细请参见 static initalizeInstance() 的注释</p>
-     * @param argIni 表示记录有初始化信息的 ini 文件
+     * @param argIniFile 表示记录有初始化信息的 ini 文件
      * @param argHtImages 欲使用的图像库
      * @param argHtMasks 对应图像库的蒙版库
      * @return 春菜窗体的引用
      */
-    public static UkagakaWin createUkagaka(String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    public static UkagakaWin createUkagaka(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         UkagakaWin newUkaWin = new UkagakaWin();
-        newUkaWin.initalize(argIni, argHtImages, argHtMasks);
+
+        newUkaWin.initalize(argIniFile, argHtImages, argHtMasks);
+
         return(newUkaWin);
     }
 
@@ -297,9 +300,9 @@ public class UkagakaWin extends JUkaWindow
      * UkagakaWin.initalizeInstance(this, argIni, argHtImages, argHtMasks)
      * 执行实际的初始化操作</p>
      */
-    public void initalize(String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    public void initalize(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
-        UkagakaWin.initalizeInstance(this, argIni, argHtImages, argHtMasks);
+        UkagakaWin.initalizeInstance(this, argIniFile, argHtImages, argHtMasks);
     }
 
     /**
@@ -314,6 +317,7 @@ public class UkagakaWin extends JUkaWindow
      * @param argIni 表示记录有初始化信息的 ini 文件
      * @param argHtImages 欲使用的图像库
      * @param argHtMasks 对应图像库的蒙版库
+
      */
     public static void initalizeInstance(UkagakaWin argUkaWin, String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
@@ -368,6 +372,7 @@ public class UkagakaWin extends JUkaWindow
      * 一直有效, 但是否响应鼠标拖动由 dragSwitch 开关决定.<br>
      * </p>
      * @param argDragSwitch 指示拖动功能的开关状态
+
      */
     public void setDragable(boolean argDragSwitch)
     {

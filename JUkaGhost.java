@@ -7,6 +7,7 @@ package jukagaka.ghost;
 
 import jukagaka.*;
 import jukagaka.shell.*;
+import jukagaka.shell.cyaushell.CyauShell;
 
 import java.util.ArrayList;
 
@@ -175,6 +176,15 @@ public class JUkaGhost extends JUkaComponent
      */
     public static void main(String[] args)
     {
+        // 此代码段演示创建一个Shell的方法
+        // 注意因为这段代码写于JUkaShell尚未完全构建之时, 所以使用的方法有些许暴力
+        CyauShell.onLoad();
+        CyauShell tmpshell = CyauShell.createShell();
+        UkagakaWin tmpukawin = tmpshell.getUkagaka();
+        tmpukawin.setVisible(true);
+        tmpukawin.repaint();
+        tmpukawin.clip();
+
         return;
     }
 }

@@ -81,8 +81,23 @@ public class CyauShell extends JUkaShell
             return;
         }
 
-        System.out.println("onLoad() was invoked successfully");
+        //System.out.println("onLoad() was invoked successfully");
         return;
+    }
+
+  // Shell Constructor & Destructor | Shell 构造/析构
+    public static CyauShell createShell()
+    {
+        CyauShell newShell = new CyauShell();
+
+        JUkaShell.initalizeShell(
+            newShell,
+            CyauShell.DEFAULT_INI,
+            CyauShell.hashImages,
+            CyauShell.hashMasks
+        );
+
+        return(newShell);
     }
 
   // Other | 杂项

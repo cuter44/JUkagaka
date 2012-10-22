@@ -4,9 +4,9 @@
  */
 package jukagaka;
 
-import jukagaka.shell.*;
-import jukagaka.ghost.*;
-import jukagaka.plugin.*;
+import jukagaka.shell.JUkaShell;
+import jukagaka.ghost.JUkaGhost;
+import jukagaka.plugin.JUkaPlugin;
 
 import java.util.ArrayList;
 import java.lang.reflect.Method;
@@ -38,7 +38,7 @@ public class JUkaStage implements ActionListener,ImageObserver
     private static ArrayList<JUkaShell> activeShell;
     private static ArrayList<JUkaGhost> activeGhost;
     /**
-     * 此数据域记录 JUkaStage 的消息侦听器
+     * 用于侦听 Tray 菜单命令的侦听器
      */
     public static JUkaStage eventListener = new JUkaStage();
 
