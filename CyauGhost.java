@@ -1,19 +1,6 @@
-/**
- * @author "Galin"<cuter44@qq.com>
- * @version v120827
- */
-
-package jukagaka.ghost;
-
-import jukagaka.*;
-import jukagaka.shell.*;
-
-import java.util.ArrayList;
-
-public class JUkaGhost extends JUkaComponent
+class  CyauGhost extends JUkaGhost
 {
-  // Shell Manipulate | Shell 操控
-    /**
+	    /**
      * <p>主要 Shell</p>
      * <p>主要 Shell 是指在主调模块未指定具体 Shell 情况下供给的缺省 Shell,
      * 它通常指向 assignedShell[0].<br>
@@ -141,9 +128,6 @@ public class JUkaGhost extends JUkaComponent
 
   // Other | 杂项
     
-	protected  void GhostOperatingSystem()
-	{
-	}
 
 	//存储Ghost人格以及部分Shell
 
@@ -162,7 +146,7 @@ public class JUkaGhost extends JUkaComponent
         
         
         
-    public GhostOperatingSystem OSReading() throws IOException, ClassNotFoundException{
+    public static GhostOperatingSystem OSReading() throws IOException, ClassNotFoundException{
             ObjectInputStream input = new ObjectInputStream(new FileInputStream("GhostOperatingSystemFile.txt"));
        
             return ((GhostOperatingSystem)input.readObject());
@@ -170,11 +154,8 @@ public class JUkaGhost extends JUkaComponent
            
         }
 
-/**
-     * @deprecated 此方法目前仅用于调试
-     */
-    public static void main(String[] args)
-    {
-        return;
-    }
+	public static void main(String[] args) 
+	{
+		
+	}
 }
