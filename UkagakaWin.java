@@ -187,8 +187,8 @@ public class UkagakaWin extends JUkaWindow
             y = 0;
         }
 
-        if (separatedKey[0].equals(""))
-            return(this.setImageLayer(null,layer,0,0));
+        //if (separatedKey[0].equals(""))
+            //return(this.setImageLayer(null,layer,0,0));
         return(this.setImageLayer(argHashKey, layer, x, y));
     }
 
@@ -288,7 +288,9 @@ public class UkagakaWin extends JUkaWindow
     public static UkagakaWin createUkagaka(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         UkagakaWin newUkaWin = new UkagakaWin();
+
         newUkaWin.initalize(argIniFile, argHtImages, argHtMasks);
+
         return(newUkaWin);
     }
 
