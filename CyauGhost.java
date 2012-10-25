@@ -1,3 +1,15 @@
+package jukagaka.ghost.cyaughost;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jukagaka.Ghost.*;
+
+import jukagaka.shell.JUkaShell;
+import jukagaka.shell.UkagakaWin;
+import jukagaka.shell.cyaushell.CyauShell;
+
 class  CyauGhost extends JUkaGhost
 {
 	    /**
@@ -107,9 +119,18 @@ class  CyauGhost extends JUkaGhost
      * <p>此方法不包含任何代码, 仅仅作为 token 存在.</p>
      * <p>(*) 任何扩展此类的子类都必须以此方法签名重写该方法<br>
      * 子类的该方法会在所有 JUkaComponentCtrl 初始化完成后被调用, 以引导 Ghost 开始工作</p>
-     */
+     *现在CyauGhost中onStart代码用于测试，根据传说，手法非常暴力
+	 */
     public static void onStart()
     {
+		JUkaGhost.onstart();
+		CyauGhost temGhost = CyauGhost.createGhost();
+        CyauShell tmpshell = CyauShell.createShell();
+		temGhost.masterShell=tmpshell;
+        UkagakaWin tmpukawin = tmpshell.getUkagaka();
+        tmpukawin.setVisible(true);
+        tmpukawin.repaint();
+        tmpukawin.clip();
         return;
     }
 
@@ -125,34 +146,23 @@ class  CyauGhost extends JUkaGhost
      //* @return 最终解析的说话内容
      //*/
     //public String speak(String argSpeech, JUkaShell argShell)
+//null值为文件路径名
+    public static CyauGhost createGhost(
+		CyauGhost cyauGhost=new CyauGhost();
+	    //initalize方法为当Ghost保存文件存在后使用，
+		//这个方法为在程序实在运行时使用
+	    JUkaGhost.initalize(cyauGhost,null);
+        //这个null值也为文件名，不过这是在创建时候做出的文件名
+		//该方法作为测试时创建初始Ghost使用
+		JUkaGhost.createGhost(cyauGhost,null);
 
+		return cyauGhost;
+     }
   // Other | 杂项
-    
 
 	//存储Ghost人格以及部分Shell
 
-	public void OPStorage(GhostOperatingSystem os)
-	{
 
-
-	}
-
-	public static void OSStorage(GhostOperatingSystem os) throws IOException
-	{
-            ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream("GhostOperatingSystemFile.txt"));
-
-
-	}
-        
-        
-        
-    public static GhostOperatingSystem OSReading() throws IOException, ClassNotFoundException{
-            ObjectInputStream input = new ObjectInputStream(new FileInputStream("GhostOperatingSystemFile.txt"));
-       
-            return ((GhostOperatingSystem)input.readObject());
- 
-           
-        }
 
 	public static void main(String[] args) 
 	{

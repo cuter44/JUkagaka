@@ -5,13 +5,14 @@
 
 package jukagaka.ghost;
 
+import java.io.*;
 import jukagaka.*;
 import jukagaka.shell.*;
 import jukagaka.shell.cyaushell.CyauShell;
 
 import java.util.ArrayList;
 
-public class JUkaGhost extends JUkaComponent
+public class JUkaGhost extends JUkaComponent implements Serializable
 {
   // Shell Manipulate | Shell 操控
     /**
@@ -140,19 +141,26 @@ public class JUkaGhost extends JUkaComponent
      //*/
     //public String speak(String argSpeech, JUkaShell argShell)
 
+    public static JUkaGhost createGhost(JUkaGhost os,String GhostFile){
+       
+        os.mainGhost=new GhostOperatingSystem();
+        os.mainGhost.initalizeOS();
+        
+		return os;
+
+	}
+
+	public static JUkaGhost initalizeGhost(JUkaGhost os,String argFile) throws IOException, ClassNotFoundException{
+		os=OSReading();
+          
+		return os;
+	}
   // Other | 杂项
     
-	protected  void GhostOperatingSystem()
-	{
-	}
 
-	//存储Ghost人格以及部分Shell
-
-	public void OPStorage(GhostOperatingSystem os)
-	{
+	//存储Ghost人格以及部分Shell,进行中
 
 
-	}
 
 	public static void OSStorage(GhostOperatingSystem os) throws IOException
 	{
@@ -163,10 +171,10 @@ public class JUkaGhost extends JUkaComponent
         
         
         
-    public GhostOperatingSystem OSReading() throws IOException, ClassNotFoundException{
+    public static JUkaGhost OSReading() throws IOException, ClassNotFoundException{
             ObjectInputStream input = new ObjectInputStream(new FileInputStream("GhostOperatingSystemFile.txt"));
        
-            return ((GhostOperatingSystem)input.readObject());
+            return ((JUkaGhost)input.readObject());
  
            
         }

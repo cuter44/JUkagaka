@@ -73,7 +73,7 @@ public class CyauShell extends JUkaShell
         try
         {
             Class classOfSampleShell = Class.forName("jukagaka.shell.cyaushell.CyauShell");
-            JUkaShellCtrl.prefetchImageResource(classOfSampleShell, CyauShell.DEFAULT_INI, "images", true);
+            JUkaShell.prefetchImageResource(classOfSampleShell, CyauShell.DEFAULT_INI, "images", true);
         }
         catch (Exception ex)
         {
@@ -111,7 +111,7 @@ public class CyauShell extends JUkaShell
         try
         {
             Class classOfSampleShell = Class.forName("jukagaka.shell.cyaushell.CyauShell");
-            JUkaShellCtrl.prefetchImageResource(classOfSampleShell, CyauShell.DEFAULT_INI, "images", true);
+            JUkaShell.prefetchImageResource(classOfSampleShell, CyauShell.DEFAULT_INI, "images", true);
         }
         catch (Exception ex)
         {
