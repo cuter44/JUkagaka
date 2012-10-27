@@ -162,21 +162,18 @@ public class JUkaGhost extends JUkaComponent implements Serializable
 
 
 
-	public static void OSStorage(GhostOperatingSystem os) throws IOException
+	public static void OSStorage(GhostOperatingSystem os,String ghostargFile) throws IOException
 	{
-            ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream("GhostOperatingSystemFile.txt"));
-
-
+            ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(ghostargFile));
+			output.close();
 	}
         
         
         
-    public static JUkaGhost OSReading() throws IOException, ClassNotFoundException{
-            ObjectInputStream input = new ObjectInputStream(new FileInputStream("GhostOperatingSystemFile.txt"));
-       
-            return ((JUkaGhost)input.readObject());
- 
-           
+    public static JUkaGhost OSReading(String ghostargFile) throws IOException, ClassNotFoundException{
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(ghostargFile));
+			input.close();
+            return ((JUkaGhost)input.readObject());           
         }
 
 /**

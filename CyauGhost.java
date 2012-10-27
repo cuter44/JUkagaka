@@ -27,7 +27,7 @@ class  CyauGhost extends JUkaGhost
      */
     protected JUkaShell slaveShell;
 
-
+    
     protected GhostOperatingSystem mainGhost;
     /**
      * <p>链接的 Shell 的记录表</p>
@@ -35,6 +35,12 @@ class  CyauGhost extends JUkaGhost
      * getAssignedShell() 以正确地返回需求的 Shell 对象.</p>
      */
     protected ArrayList<JUkaShell> assignedShell = null;
+
+    /**
+	 *作为记录单个Ghost的文件名
+	 *文件名用创建和打开指定Ghost
+	 */
+	String ghostargFile = JUkaUtility.getProgramDir()+"ghost/JUkaGhost1.txt";
 
     /**
      * <p>根据指定的序号获取该 Ghost 控制的 Shell </p>
@@ -112,6 +118,8 @@ class  CyauGhost extends JUkaGhost
      */
     public static void onLoad()
     {
+		JUkaGhost.onload();
+		
         return;
     }
 
@@ -151,7 +159,7 @@ class  CyauGhost extends JUkaGhost
 		CyauGhost cyauGhost=new CyauGhost();
 	    //initalize方法为当Ghost保存文件存在后使用，
 		//这个方法为在程序实在运行时使用
-	    JUkaGhost.initalize(cyauGhost,null);
+	    JUkaGhost.initalize(cyauGhost,ghostargFile);
         //这个null值也为文件名，不过这是在创建时候做出的文件名
 		//该方法作为测试时创建初始Ghost使用
 		JUkaGhost.createGhost(cyauGhost,null);
