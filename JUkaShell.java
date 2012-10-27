@@ -30,12 +30,10 @@ public class JUkaShell extends JUkaComponent implements Serializable
     // 非字符串值及数据域签名请勿改动.
 
     /**
-     * <p>此数据域记录 Shell 的静态参数存储, 也就是 ini 文件的位置.</p>
-     * <p>Shell 的大部分静态参数(例如春菜的名字, 图像资源列表等)均存储在此 ini
-     * 文件中, 通过这种方式存储是为了在便利性和灵活性上取得均衡, 某些 API 会要
-     * 求以整个 Shell 类来作为传入参数, 一般它们将通过此域来自行获取参数, 以
-     * 简化参数列, 并降低调用者的编程负担.<br>
-     * (*) 此类的扩展者应重写这个域</p>
+     * <p>(样例)INI文件的表示方式</p>
+     * <p>Shell的诸多初始方法都使用INI进行初始化工作, 这里给出的是索引INI文件的
+     * 写法(之一.)
+     * </p>
      */
     public static final String DEFAULT_INI = JUkaUtility.getProgramDir() + "/defaultShell.ini";
 
@@ -339,7 +337,30 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(null);
     }
 
-    public static JUkaShell initalizeShell(JUkaShell argShell, String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    /**
+     * <p>命令 Shell 自初始化</p>
+     * <p>事实上此方法调用
+     * JUkaShell.doInitalize(this, argIni, argHtImages, argHtMasks)
+     * 执行实际的初始化操作</p>
+     * <p>此类的扩展者应重写这个函数, 并在自撰的代码<b>前<b>加入
+     * <span class="code">
+     * super.initalize(String, Hashtable<String, Image>, Hashtable<String, Image>);
+     * </span>
+     * 以实现级联初始化.<br>
+     * 或直接调用这个函数.
+     * </p>
+     */
+    // 这个方法尚不是Override的.
+    //@Override
+    protected void initalize(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
+        // 此类的扩展者应在自撰的代码前加入如下代码以完成级联初始化, 实参可能有所不同
+        //super.initalize();
+
+        JUkaShell.doInitalize(this, argIniFile, argHtImages, argHtMasks);
+    }
+
+    private static JUkaShell doInitalize(JUkaShell argShell, String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         argShell.initalizeUkagaka(argIniFile, argHtImages, argHtMasks);
         argShell.initalizeMainBalloon(argIniFile, argHtImages, argHtMasks);
@@ -373,24 +394,13 @@ public class JUkaShell extends JUkaComponent implements Serializable
      */
     public void initalizeWinList()
     {
+        // TODO: 销毁原有窗体
         this.winList = new ArrayList<JUkaWindow>(16);
         this.winList.add(this.ukagakaWin);
         this.winList.add(this.mainBalloon);
 
         return;
     }
-
-    // (!) 此API已被取消
-    ///**
-     //* <p>命令 Shell 自初始化</p>
-     //* <p>事实上此方法调用
-     //* JUkaShell.initalizeInstance(this, argIni, argHtImages, argHtMasks)
-     //* 执行实际的初始化操作</p>
-     //*/
-    //protected void initalize(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
-    //{
-        //JUkaShell.initalize(this. argIniFile, argHtImages, argHtMasks);
-    //}
 
     // (!) 此API已被取消
     ///**
@@ -418,10 +428,9 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * 此操作将销毁 Shell 占用的显示资源, 并将其标示为不可用(isDiscarded() 方法
      * 返回 false)<br>
      * 任何对已弃置 Shell 的操作请求都将被驳回或无效.<br>
-     * (*) 此类的扩展者应按照该签名重写方法, 并在自撰的代码<b>后</b>调用父类的方法.
-     *     或者什么也不做以直接使用缺省的方法</p>
+     * (*) 建议此类的扩展者使用类似的实现方法以完成回收前的善后工作</p>
      */
-    protected static void discardShell(JUkaShell argShell)
+    private static void doDiscard(JUkaShell argShell)
     {
 
         argShell.discarded = true;
@@ -435,7 +444,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
      */
     protected void discard()
     {
-        JUkaShell.discardShell(this);
+        JUkaShell.doDiscard(this);
         return;
     }
 
@@ -447,6 +456,13 @@ public class JUkaShell extends JUkaComponent implements Serializable
     public boolean isDiscarded()
     {
         return(this.discarded);
+    }
+
+    /**
+     * <p>默认的构造函数...什么也不做</p>
+     */
+    protected JUkaShell()
+    {
     }
 
   // Ukagaka Manipulate | 春菜操纵命令
@@ -515,39 +531,37 @@ public class JUkaShell extends JUkaComponent implements Serializable
 
   // Ukagaka Monopoly | 独占使用(吐槽坑爹的爱词霸)
     /**
-     * 此数据域记录目前使用中的 Key
+     * 记录锁的申请者, 同时也是锁的存在
      */
-    private int preservedKey = 0;
+    transient private Object lockApplicant = null;
 
     /**
      * <p>锁定春菜以获得其专用权</p>
      * <p>此类的扩展者应以 public 覆盖此函数, 并在自撰的代码<strong>后</strong>
      * 调用此方法.</p>
      */
-    protected int lockUkagaka()
+    protected boolean lockUkagaka(Object argApplicant)
     {
         // 已锁定时报错
-        if (this.preservedKey != 0)
-            return(0xFFFFFFFF);
+        if (this.lockApplicant != null)
+            return(false);
 
         // 生成密钥
-        do
-            this.preservedKey = new Double(Math.random() * 0x7FFFFFFF).intValue();
-        while (this.preservedKey <= 0);
+        this.lockApplicant = argApplicant;
 
-        return(this.preservedKey);
+        return(true);
     }
 
     /**
      * <p>解锁伪春菜以去除其专用保护</p>
      * <p>由于不依赖密钥解锁, 所以这个方法总是成功并且返回 true 的, 这意味着
-     * 可以抢占 Shell, 而且不会有栈信息以还原抢占... 原占有者也不会被通知<br>
+     * 可以抢占 Shell, 而且不会有栈信息以还原抢占... 原占有者也不会被通知(待定)<br>
      * 此类的扩展者应该以 public 覆盖此方法, 并在自撰的代码<strong>后</strong>
      * 调用此方法</p>
      */
     protected boolean unlockUkagaka()
     {
-        this.preservedKey = 0;
+        this.lockApplicant = null;
 
         return(true);
     }
@@ -555,24 +569,61 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * <p>此方法判定给定的密钥能否获得春菜的占用权</p>
      */
-    public boolean checkAuthority(int key)
+    public boolean checkAuthority(Object argReguest)
     {
-        if (this.preservedKey == 0)
+        if (this.lockApplicant == null)
             return(true);
 
-        return((key ^ this.preservedKey) == 0);
+        // 绝对比较, 仅允许同一对象进行操作
+        return(argReguest == this.lockApplicant);
     }
 
-    // Balloon Manipulate | 气球操纵指令
-    //   ∧
-    //  /｜\  TODO: 工事中...
-    // /_＾_\
+  // Balloon Manipulate | 气球操纵指令
+    /**
+     * <p>创建一个气球, 初始化机能inside</p>
+     * <p>此类的扩展者应该扩展这个函数并调用
+     * <span class="code">
+     * super.createBalloon(...);
+     * </span>
+     * 以完成实参的装入.<br>
+     * 不建议直接调用 BalloonWin.createBalloon(), 这样做不能使 Shell 感知到
+     * 气球存在并将指令加诸其上.
+     * </p>
+     */
+    public BalloonWin createBalloon(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    {
+        BalloonWin newBalloon = BalloonWin.createBalloon(argIniFile, argHtImages, argHtMasks);
+        // 已初始化
+        this.winList.add(newBalloon);
+
+        return(newBalloon);
+    }
+
+    /**
+     * <p>清除指定的气球</p>
+     * <p>由于坑爹的java并不提供显式销毁对象的方法, 此方法仅调用
+     * <span class="code">
+     * argBalloon.dispose()
+     * </span>
+     * 以释放显示资源, 以及从Shell的气球列表中去除</p>
+     */
+    public void discardBalloon(BalloonWin argBalloon)
+    {
+        // TODO 加入隐藏的函数
+        argBalloon.dispose();
+
+        if (!this.winList.remove((JUkaWindow)argBalloon))
+            System.err.println("Warn:JUkaShell.discardShell():指定的窗口不存在: " + argBalloon.toString());
+
+        return;
+    }
 
   // General for Ukagaka & Balloon | Win 通用操纵命令
     /**
      * <p>要求重绘指定的窗体</p>
+     * <p>要发动到UkagakaWin, 请指定参数为0</p>
      */
-    public void fireRepaint(int argWinID)
+    public boolean fireRepaint(int argWinID)
     {
         try
         {
@@ -582,14 +633,15 @@ public class JUkaShell extends JUkaComponent implements Serializable
         {
             System.err.println(ex);
             System.err.println("Error: JUkaShell.fireReprint(): 无效下标索引, 函数已退出");
-            return;
+            return(false);
         }
 
-        return;
+        return(true);
     }
 
     /**
      * <p>要求重绘指定的窗体</p>
+     * <p>对于气球窗体, 等价于argWin.repaint()</p>
      */
     public boolean fireRepaint(JUkaWindow argWin)
     {
@@ -600,10 +652,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         }
 
         if (!this.winList.contains(argWin))
-        {
             System.err.println("Warn: JUkaShell.fireRepaint(): 指定窗体未包含在列表中");
-            return(false);
-        }
 
         argWin.repaint();
 
@@ -612,8 +661,9 @@ public class JUkaShell extends JUkaComponent implements Serializable
 
     /**
      * <p>要求裁剪指定的窗体</p>
+     * <p>要发动到UkagakaWin, 请指定参数为0</p>
      */
-    public void fireClip(int argWinID)
+    public boolean fireClip(int argWinID)
     {
         try
         {
@@ -623,14 +673,15 @@ public class JUkaShell extends JUkaComponent implements Serializable
         {
             System.err.println(ex);
             System.err.println("Error: JUkaShell.fireClip(): 无效下标索引, 函数已退出");
-            return;
+            return(false);
         }
 
-        return;
+        return(true);
     }
 
     /**
      * <p>要求裁剪指定的窗体</p>
+     * <p>对于气球窗体, 等价于argWin.clip()</p>
      */
     public boolean fireClip(JUkaWindow argWin)
     {
@@ -641,12 +692,50 @@ public class JUkaShell extends JUkaComponent implements Serializable
         }
 
         if (!this.winList.contains(argWin))
-        {
             System.err.println("Warn: JUkaShell.fireClip(): 指定窗体未包含在列表中");
+
+        argWin.clip();
+
+        return(true);
+    }
+
+    /**
+     * <p>设定窗体显示隐藏</p>
+     * <p>要发动到UkagakaWin, 请指定参数为argWinID为0<del>, 此时将触发级联隐藏.</del>(开发中)</p>
+     */
+    public boolean setWinVisible(int argWinID, boolean b)
+    {
+        // TODO 级联隐藏
+        try
+        {
+            this.setWinVisible(this.winList.get(argWinID), b);
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+            System.err.println(ex);
+            System.err.println("Error: JUkaShell.setWinVisible(): 无效下标索引, 函数已退出");
             return(false);
         }
 
-        argWin.clip();
+        return(true);
+    }
+
+    /**
+     * <p>要求裁剪指定的窗体</p>
+     * <p>对于气球窗体, 等价于argWin.clip()</p>
+     */
+    public boolean setWinVisible(JUkaWindow argWin, boolean b)
+    {
+        if (argWin == null)
+        {
+            System.err.println("Error: JUkaShell.setWinVisible(): 空指针参数, 函数已退出");
+            return(false);
+        }
+
+        if (!this.winList.contains(argWin))
+            System.err.println("Warn: JUkaShell.setWinVisible(): 指定窗体未包含在列表中");
+
+        argWin.setVisible(b);
 
         return(true);
     }
@@ -680,13 +769,6 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * <p>目前这个窗体还没有用途, 仅用于消除模块依赖</p>
      */
     static JDialog reservedWin = new JDialog();
-
-    /**
-     * 构造函数...不应该被显式调用
-     */
-    protected JUkaShell()
-    {
-    }
 
     /**
      * @deprecated 此方法目前仅用于调试

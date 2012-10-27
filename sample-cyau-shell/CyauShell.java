@@ -73,7 +73,7 @@ public class CyauShell extends JUkaShell
         try
         {
             Class classOfSampleShell = Class.forName("jukagaka.shell.cyaushell.CyauShell");
-            JUkaShellCtrl.prefetchImageResource(classOfSampleShell, CyauShell.DEFAULT_INI, "images", true);
+            JUkaShell.prefetchImageResource(classOfSampleShell, CyauShell.DEFAULT_INI, "images", true);
         }
         catch (Exception ex)
         {
@@ -90,8 +90,7 @@ public class CyauShell extends JUkaShell
     {
         CyauShell newShell = new CyauShell();
 
-        JUkaShell.initalizeShell(
-            newShell,
+        newShell.initalize(
             CyauShell.DEFAULT_INI,
             CyauShell.hashImages,
             CyauShell.hashMasks
@@ -100,24 +99,31 @@ public class CyauShell extends JUkaShell
         return(newShell);
     }
 
+    /**
+     * <p>默认的构造方法...什么也不干</p>
+     */
+    public CyauShell()
+    {
+    }
+
   // Other | 杂项
     /**
      * @deprecated 此方法目前仅用于调试
      */
     public static void main(String[] args)
     {
-        //// 用于测试 Shell 装/卸载 及 图像加载时间的代码.
+        // 用于测试 Shell 装/卸载 及 图像加载时间的代码.
         System.out.println(CyauShell.install());
-        try
-        {
-            Class classOfSampleShell = Class.forName("jukagaka.shell.cyaushell.CyauShell");
-            JUkaShellCtrl.prefetchImageResource(classOfSampleShell, CyauShell.DEFAULT_INI, "images", true);
-        }
-        catch (Exception ex)
-        {
-            System.err.println(ex);
-            return;
-        }
+
+        CyauShell.onLoad();
+
+        // 用于测试创建 Shell / Ukagaka / Balloon
+        CyauShell testShell = CyauShell.createShell();
+        testShell.setWinVisible(0, true);
+        testShell.fireClip(0);
+        testShell.setWinVisible(1, true);
+        testShell.fireClip(1);
+
         //System.out.println(SampleShell.hashImages.size());
         //System.out.println(SampleShell.hashMasks.size());
         //System.out.println(SampleShell.uninstallComponent());
@@ -127,8 +133,9 @@ public class CyauShell extends JUkaShell
         //tmpJDialog.setSize(320, 320);
         //tmpJDialog.setVisible(true);
         //tmpJDialog.getGraphics().drawImage(SampleShell.hashImages.get("shell/SampleShell/surface0000.png"),
-                                           //0, 0,
-                                           //JUkaStage.eventListener);
+            //0, 0,
+            //JUkaStage.eventListener
+        //);
 
         // 用于测试 UkagagkaWin 能否正确缓存的方法
         //UkagakaWin testUkaWin = UkagakaWin.createUkagaka(SampleShell.DEFAULT_INI, hashImages, hashMasks);
