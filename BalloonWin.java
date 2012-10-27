@@ -7,17 +7,24 @@ package jukagaka.shell;
 
 import jukagaka.*;
 
-import java.awt.Image;
+// 基本数据支援
 import java.awt.Dimension;
+import java.util.Hashtable;
+import java.awt.Rectangle;
+// 图像绘制 变形机能支援
+import java.awt.Image;
 import java.awt.Graphics;
 import java.awt.geom.Area;
-import java.awt.geom.PathIterator;
+///*调试用*/import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
+// 大小变更侦听机能支援
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentAdapter;
+// 滑鼠拖动 点击支援
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseMotionAdapter;
-import java.util.Hashtable;
-//import javax.swing.JDialog;
+// 窗体截断 透明化支援
 import com.sun.awt.AWTUtilities;
 
 public class BalloonWin extends JUkaWindow
@@ -41,7 +48,7 @@ public class BalloonWin extends JUkaWindow
         return;
     }
 
-  // Paint | 绘制背景
+  // Paint | 绘图相关
     /**
      * 标记缓存有效性
      */
@@ -168,7 +175,9 @@ public class BalloonWin extends JUkaWindow
     public static BalloonWin createBalloon(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         BalloonWin newBalloon = new BalloonWin();
+
         newBalloon.initalize(argIniFile, argHtImages, argHtMasks);
+
         return(newBalloon);
     }
 
@@ -180,7 +189,7 @@ public class BalloonWin extends JUkaWindow
      */
     public void initalize(String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
-        BalloonWin.initalizeInstance(this, argIni, argHtImages, argHtMasks);
+        BalloonWin.doInitalize(this, argIni, argHtImages, argHtMasks);
     }
 
     /**
@@ -195,7 +204,7 @@ public class BalloonWin extends JUkaWindow
      * @param argIniFile 表示记录有初始化信息的 ini 文件
      * @return 一个空白的气球引用
      */
-    public static BalloonWin initalizeInstance(BalloonWin argBalloon, String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    private static BalloonWin doInitalize(BalloonWin argBalloon, String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         Hashtable<String, String> htInitInfo = JUkaUtility.iniReadSector(argIniFile, "balloon");
 
@@ -217,7 +226,21 @@ public class BalloonWin extends JUkaWindow
         argBalloon.setUndecorated(true);
 
         // 可拖动(可选)
-        //newBalloon.setDragable(true);
+        argBalloon.setDragable(true);
+
+        // 侦听大小变更
+        final BalloonWin tmpFinalBW = argBalloon;
+        tmpFinalBW.addComponentListener(
+            new ComponentAdapter()
+            {
+                @Override
+                public void componentResized(ComponentEvent ev)
+                {
+                    tmpFinalBW.transOutdated = true;
+                    return;
+                }
+            }
+        );
 
         return(argBalloon);
     }
@@ -262,6 +285,7 @@ public class BalloonWin extends JUkaWindow
         this.addMouseListener(
             new MouseAdapter()
             {
+                @Override
                 public void mousePressed(MouseEvent ev)
                 {
                     if (dragSwitch)
@@ -278,6 +302,7 @@ public class BalloonWin extends JUkaWindow
         this.addMouseMotionListener(
             new MouseMotionAdapter()
             {
+                @Override
                 public void mouseDragged(MouseEvent ev)
                 {
                     if (!dragSwitch)
@@ -303,22 +328,40 @@ public class BalloonWin extends JUkaWindow
     }
 
   // Resize(@Override) | 窗体大小变更(重写)
-    /**
-     * 变更大小时要求重绘
-     */
-    @Override
-    public void setSize(int width, int height)
-    {
-        super.setSize(width, height);
-        this.transOutdated = true;
-        return;
-    }
+  /* 因为窗体大小变更而需要更新缓存的操作已被 大小变更侦听器 取代
+   * 此Sector的代码不再有效, 并将在通告之后被完全删除
+    ///**
+     //* 变更大小时要求重绘
+     //*/
+    //@Override
+    //public void setSize(int width, int height)
+    //{
+        //super.setSize(width, height);
+        //this.transOutdated = true;
+        //return;
+    //}
 
-    @Override
-    public void setSize(Dimension d)
-    {
-        this.setSize(d.width, d.height);
-    }
+    //@Override
+    //public void setSize(Dimension d)
+    //{
+        //this.setSize(d.width, d.height);
+        //return;
+    //}
+
+    //@Override
+    //public void setBounds(int x, int y, int width, int height)
+    //{
+        //super.setBounds(x, y, width, height);
+        //this.transOutdated = true;
+        //return;
+    //}
+
+    //@Override
+    //public void setBounds(Rectangle r)
+    //{
+        //this.setBounds(r.x, r.y, r.width, r.height);
+        //return;
+    //}
 
   // Other | 杂项
     /**
