@@ -8,20 +8,30 @@ package jukagaka.shell;
 import jukagaka.*;
 import jukagaka.shell.*;
 
+// IO/序列化支援
 import java.io.File;
 import java.io.Serializable;
+import java.util.Scanner;
+// 基本数据支援
 import java.util.Hashtable;
 import java.util.ArrayList;
-import java.util.Scanner;
+// 图像机能支援
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Image;
 import java.awt.image.PixelGrabber;
 import java.awt.MediaTracker;
+// 裁剪机能支援
 import java.awt.geom.Area;
 import java.awt.geom.AffineTransform;
+// 反射调用支援
 import java.lang.reflect.Field;
+// Token
 import javax.swing.JDialog;
+// 事件派送支援
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 
 public class JUkaShell extends JUkaComponent implements Serializable
 {
@@ -66,7 +76,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * 此数据域记录承载春菜的 Frame
      */
-    private UkagakaWin ukagakaWin = null;
+    transient private UkagakaWin ukagakaWin = null;
     /**
      * 此数据域记录主菜单的 Frame
      */
@@ -402,25 +412,6 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return;
     }
 
-    // (!) 此API已被取消
-    ///**
-     //* <p>对 Shell 对象进行基础初始化</p>
-     //*/
-    //protected static JUkaShell initalizeInstance(JUkaShell argShell, String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
-    //{
-        //// 初始化窗体队列
-        //argShell.winList = new ArrayList<JUkaWindow>(16);
-        //// 初始化 UkagakaWin
-        //argShell.ukagakaWin = UkagakaWin.createUkagaka(argIniFile, argHtImages, argHtMasks);
-        //argShell.winList.add(argShell.ukagakaWin);
-        //// 初始化 BalloonWin
-        //argShell.mainBalloon = BalloonWin.createBalloon(argIniFile, argHtImages, argHtMasks);
-        //argShell.winList.add(argShell.mainBalloon);
-
-        //return(argShell);
-    //}
-
-
     /**
      * <p>此方法用于弃置一个 Shell 使之不再有效</p>
      * <p>弃置 Shell 是指将其从当前运行环境中销毁, <span color="red">而不是指
@@ -459,7 +450,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     }
 
     /**
-     * <p>默认的构造函数...什么也不做</p>
+     * <p>默认的构造函数...留给序列化机制使用, 什么也没有做</p>
      */
     protected JUkaShell()
     {
@@ -481,6 +472,9 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(this.ukagakaWin);
     }
 
+    /**
+     * <p></p>
+     */
     public boolean setImageLayer(String argHashKey, int argLayer, int x, int y, int accessKey)
     {
         if (!this.checkAuthority(accessKey))
@@ -526,6 +520,63 @@ public class JUkaShell extends JUkaComponent implements Serializable
     public void buildBackBuffer()
     {
         this.ukagakaWin.buildBackBuffer();
+        return;
+    }
+
+  // Ukagaka Event Handle | ukagakaWin 事件侦听方法
+    /**
+     * <p>将组件侦听器附加到ukagakaWin上</p>
+     * <p>此类型侦听器主要用于侦听ukagakaWin的hide, show, move和resize<br>
+     * 详细请参考JAPI Component.addComponentListener()</p>
+     */
+    public void addUkaCompListener(ComponentListener l)
+    {
+        this.ukagakaWin.addComponentListener(l);
+
+        return;
+    }
+
+    public void removeUkaCompListener(ComponentListener l)
+    {
+        this.ukagakaWin.removeComponentListener(l);
+
+        return;
+    }
+
+    /**
+     * <p>将鼠标活动侦听器附加到ukagakaWin上</p>
+     * <p>此类型的侦听器主要用于侦听鼠标拖动, 只有在ukagakaWin获得焦点时才有效<br>
+     * 详细请参考JAPI Component.addMouseMotionListener()</p>
+     */
+    public void addUkaMouseMovListener(MouseMotionAdapter l)
+    {
+        this.ukagakaWin.addMouseMotionListener(l);
+
+        return;
+    }
+
+    public void removeUkaMouseMovListener(MouseMotionAdapter l)
+    {
+        this.ukagakaWin.removeMouseMotionListener(l);
+
+        return;
+    }
+
+    /**
+     * <p>将鼠标侦听器附加到ukagakaWin上</p>
+     * <p>此类型侦听器主要用于侦听鼠标点击, 只有在ukagakaWin获得焦点时才有效</p>
+     */
+    public void addUkaMouseListener(MouseListener l)
+    {
+        this.ukagakaWin.addMouseListener(l) ;
+
+        return;
+    }
+
+    public void removeUkaMouseListener(MouseListener l)
+    {
+        this.ukagakaWin.removeMouseListener(l) ;
+
         return;
     }
 
