@@ -31,6 +31,9 @@ public class JUkaGhost extends JUkaComponent implements Serializable
     protected JUkaShell slaveShell;
 
 
+	protected private static Object argghost;
+
+
     protected GhostOperatingSystem mainGhost;
     /**
      * <p>链接的 Shell 的记录表</p>
@@ -115,6 +118,14 @@ public class JUkaGhost extends JUkaComponent implements Serializable
      */
     public static void onLoad()
     {
+        try {
+            JUkaGhost.argghost=JUkaGhost.OSReading(null);
+        } catch (IOException ex) {
+            Logger.getLogger(JUkaGhost.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(JUkaGhost.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         return;
     }
 
@@ -141,20 +152,34 @@ public class JUkaGhost extends JUkaComponent implements Serializable
      //*/
     //public String speak(String argSpeech, JUkaShell argShell)
 
-    public static JUkaGhost createGhost(JUkaGhost os,String GhostFile){
+    protected void createGhost(JUkaGhost os,String GhostargFile){
+        docreateGhost(this,GhostargFile);
        
+
+	}
+    
+    protected void createGhost(JUkaGhost os,String GhostargFile){
+        docreateGhost(this,GhostargFile);
+       
+
+	}
+    
+    private JUkaGhost docreateGhost(JUkaGhost os,String GhostargFile){
         os.mainGhost=new GhostOperatingSystem();
         os.mainGhost.initalizeOS();
         
 		return os;
+    }
 
+	protected void initalizeGhost() throws IOException, ClassNotFoundException{
+		
+            JUkaGhost.doinitalizeGhost(this);
 	}
+        
+    private static void doinitalizeGhost(JUkaGhost argGhost) throws IOException, ClassNotFoundException {
+        argGhost=(JUkaGhost)argghost;
+    }
 
-	public static JUkaGhost initalizeGhost(JUkaGhost os,String argFile) throws IOException, ClassNotFoundException{
-		os=OSReading();
-          
-		return os;
-	}
   // Other | 杂项
     
 
@@ -170,10 +195,11 @@ public class JUkaGhost extends JUkaComponent implements Serializable
         
         
         
-    public static JUkaGhost OSReading(String ghostargFile) throws IOException, ClassNotFoundException{
+    public static Object OSReading(String ghostargFile) throws IOException, ClassNotFoundException{
             ObjectInputStream input = new ObjectInputStream(new FileInputStream(ghostargFile));
-			input.close();
-            return ((JUkaGhost)input.readObject());           
+          Object initghost=input.readObject();
+          input.close();
+          return initghost;
         }
 
 /**

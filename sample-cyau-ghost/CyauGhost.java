@@ -155,14 +155,20 @@ class  CyauGhost extends JUkaGhost
      //*/
     //public String speak(String argSpeech, JUkaShell argShell)
 //null值为文件路径名
-    public static CyauGhost createGhost(
+    public static CyauGhost createGhost(){
 		CyauGhost cyauGhost=new CyauGhost();
-	    //initalize方法为当Ghost保存文件存在后使用，
-		//这个方法为在程序实在运行时使用
-	    JUkaGhost.initalize(cyauGhost,ghostargFile);
+        try {
+            //initalize方法为当Ghost保存文件存在后使用，
+                //这个方法为在程序实在运行时使用
+           cyauGhost.initalizeGhost(ghostargFile);
+        } catch (IOException ex) {
+            Logger.getLogger(CyauGhost.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(CyauGhost.class.getName()).log(Level.SEVERE, null, ex);
+        }
         //这个null值也为文件名，不过这是在创建时候做出的文件名
 		//该方法作为测试时创建初始Ghost使用
-		JUkaGhost.createGhost(cyauGhost,null);
+		cyauGhost.createGhost(cyauGhost,ghostargFile);
 
 		return cyauGhost;
      }
