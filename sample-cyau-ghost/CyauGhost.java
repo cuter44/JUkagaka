@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jukagaka.Ghost.*;
+import jukagaka.ghost.*;
 
 import jukagaka.shell.JUkaShell;
 import jukagaka.shell.UkagakaWin;

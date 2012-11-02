@@ -31,7 +31,7 @@ public class JUkaGhost extends JUkaComponent implements Serializable
     protected JUkaShell slaveShell;
 
 
-	protected private static Object argghost;
+	 transient private static Object argghost;
 
 
     protected GhostOperatingSystem mainGhost;
@@ -116,16 +116,11 @@ public class JUkaGhost extends JUkaComponent implements Serializable
      * <p>(*) 任何扩展此类的子类都必须以此方法签名重写该方法<br>
      * 子类的该方法会在 JUkagaka 启动时被调用, 以提供机会让 Ghost 完成初始化工作</p>
      */
-    public static void onLoad()
-    {
-        try {
-            JUkaGhost.argghost=JUkaGhost.OSReading(null);
-        } catch (IOException ex) {
-            Logger.getLogger(JUkaGhost.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(JUkaGhost.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+    public static void onLoad() throws IOException, ClassNotFoundException {
+
+        JUkaGhost.argghost = JUkaGhost.OSReading(null);
+
+
         return;
     }
 
@@ -152,12 +147,7 @@ public class JUkaGhost extends JUkaComponent implements Serializable
      //*/
     //public String speak(String argSpeech, JUkaShell argShell)
 
-    protected void createGhost(JUkaGhost os,String GhostargFile){
-        docreateGhost(this,GhostargFile);
-       
 
-	}
-    
     protected void createGhost(JUkaGhost os,String GhostargFile){
         docreateGhost(this,GhostargFile);
        

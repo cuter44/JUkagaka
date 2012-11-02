@@ -2,6 +2,7 @@
  * Edited by sky_weihao
  * version 1000000
  */
+
 package jukagaka.Ghost;
 
 import java.awt.BorderLayout;
@@ -19,7 +20,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.Timer;
 import jukagaka.JUkaUtility;
+import jukagaka.shell.BalloonWin;
 import jukagaka.shell.JUkaShell;
+import jukagaka.shell.UkagakaWin;
+import jukagaka.shell.cyaushell.CyauShell;
 /*
  * 这个类为茶兔speak类的第一版，修改自第一个CyauGhost,但是其中加入了宏解释功能
  * 此类之后较适合加入于GhostOperatingSystem类，当然加入Ghost中也能运行，此类只能
@@ -59,15 +63,15 @@ public class Speak extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            // final CyauFrame newballoon = shell.createBalloon();
+           
             time = (int) (Math.random() * lth);            //产生随机内容
             SpeakCtrl();
             area.setLineWrap(true);
             area.setEditable(false);
             area.setWrapStyleWord(true);
-            //newballoon.add(area, BorderLayout.CENTER);
-            //  newballoon.show(true, TOP_ALIGNMENT);
-            // shell.showBalloon(newballoon, true);
+            add(area, BorderLayout.CENTER);
+          
+            
             ActionListener taskPerformer1 = new ActionListener() {
 
                 @Override////第二计时器
@@ -205,19 +209,31 @@ public class Speak extends JPanel {
                 demo2.append(a);
                 i++;
                 }
-                area.setText(demo2.toString());
+                area.setText(demo2.toString());//在气球上输出内容
+                
             }
             i++;
             demo1=null;
             demo2=null;
 
         }
-        area.setText(tucaoText[time]);              //改变输出内容
+               
         return 0;
     }
     //////以下测试
 
     public static void main(String[] args) throws FileNotFoundException {
         //以下测试
+         CyauShell.onLoad();
+        CyauShell tmpshell = CyauShell.createShell();
+        
+        UkagakaWin tmpukawin = tmpshell.getUkagaka();
+        BalloonWin testballoon = tmpshell.createBalloon(TOOL_TIP_TEXT_KEY, null, null);
+        Speak testspeak = new Speak();
+       testballoon.add(testspeak);
+        tmpukawin.setVisible(true);
+        tmpukawin.repaint();
+        tmpukawin.clip();
+        return;
     }
 }
