@@ -106,6 +106,14 @@ public class CyauShell extends JUkaShell
     {
     }
 
+  // Balloon | 气球
+    //@Override
+    // 此方法不是Override
+    public BalloonWin createBalloon()
+    {
+        return(super.createBalloon(CyauShell.DEFAULT_INI, CyauShell.hashImages, CyauShell.hashMasks));
+    }
+
   // Other | 杂项
     /**
      * @deprecated 此方法目前仅用于调试

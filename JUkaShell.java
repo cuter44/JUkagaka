@@ -641,7 +641,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * 气球存在并将指令加诸其上.
      * </p>
      */
-    public BalloonWin createBalloon(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    protected BalloonWin createBalloon(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         BalloonWin newBalloon = BalloonWin.createBalloon(argIniFile, argHtImages, argHtMasks);
         // 已初始化
