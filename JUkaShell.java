@@ -15,6 +15,7 @@ import java.util.Scanner;
 // 基本数据支援
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 // 图像机能支援
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -32,6 +33,8 @@ import javax.swing.JDialog;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class JUkaShell extends JUkaComponent implements Serializable
 {
@@ -456,7 +459,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     {
     }
 
-  // Ukagaka Manipulate | 春菜操纵命令
+  // Ukagaka Manipulate | 春菜.操纵命令
     /* 基于 JLS 规范以及锁定机能的需要对 ukagakaWin 进行屏蔽,
      * 除了第一个命令外, 其余命令将被转发到 JUkaShell.ukagakaWin 的同名方法上执行.
      * 此类的扩展者可以重写并以 super.methodName() 的方式调用以增加自己设定的限制.
@@ -475,7 +478,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
     /**
      * <p></p>
      */
-    public boolean setImageLayer(String argHashKey, int argLayer, int x, int y, int accessKey)
+    public boolean setImageLayer(String argHashKey, int argLayer, int x, int y, Object accessKey)
     {
         if (!this.checkAuthority(accessKey))
             return(false);
@@ -483,7 +486,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(this.ukagakaWin.setImageLayer(argHashKey, argLayer, x, y));
     }
 
-    public boolean setImageLayer(String argHashKey, int accessKey)
+    public boolean setImageLayer(String argHashKey, Object accessKey)
     {
         if (!this.checkAuthority(accessKey))
             return(false);
@@ -491,7 +494,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(this.ukagakaWin.setImageLayer(argHashKey));
     }
 
-    public boolean setImageBatch(String[] arrHashKeys, int accessKey)
+    public boolean setImageBatch(String[] arrHashKeys, Object accessKey)
     {
         if (!this.checkAuthority(accessKey))
             return(false);
@@ -499,7 +502,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(this.ukagakaWin.setImageBatch(arrHashKeys));
     }
 
-    public boolean setImageBatch(String arrHashKeys, int accessKey)
+    public boolean setImageBatch(String arrHashKeys, Object accessKey)
     {
         if (!this.checkAuthority(accessKey))
             return(false);
@@ -523,7 +526,34 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return;
     }
 
-  // Ukagaka Event Handle | ukagakaWin 事件侦听方法
+  // Animation | 春菜.连续动作
+    private AnimationCtrl currentAniThread = null;
+
+    public synchronized boolean startAnimation(String argAniSeq, int argRepeat, Object accessKey)
+    {
+        // 独占检查
+        if (!this.checkAuthority(accessKey))
+            return(false);
+
+        // 打断当前动作
+        if (currebtAniThread != null)
+            currentAniThread.interrupt();
+
+        // 试图建立新动作控制器线程
+        this.curretAniThread = AnimationCtrl.startAniThread(argAniSeq, argRepeat, this.ukagakaWin);
+        if (this.currentAniThread == null)
+            return(false);
+        return(true);
+    }
+
+    public void stopAnimation()
+    {
+        this.currentAniThread.interrupt();
+        this.currentAniThread = null;
+        return;
+    }
+
+  // Ukagaka Event Handle | 春菜.窗体事件侦听
     /**
      * <p>将组件侦听器附加到ukagakaWin上</p>
      * <p>此类型侦听器主要用于侦听ukagakaWin的hide, show, move和resize<br>
@@ -580,7 +610,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return;
     }
 
-  // Ukagaka Monopoly | 独占使用(吐槽坑爹的爱词霸)
+  // Ukagaka Monopoly | 春菜.独占使用
     /**
      * 记录锁的申请者, 同时也是锁的存在
      */
@@ -591,31 +621,41 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * <p>此类的扩展者应以 public 覆盖此函数, 并在自撰的代码<strong>后</strong>
      * 调用此方法.</p>
      */
-    protected boolean lockUkagaka(Object argApplicant)
+    protected boolean synchronized setLockUkagaka(Object argApplicant)
     {
-        // 已锁定时报错
+        // 解锁
+        if (argApplicant == this.lockApplicant)
+        {
+            this.lockApplicant = null;
+            return(false);
+        }
+
+        // 已锁定时排斥
         if (this.lockApplicant != null)
             return(false);
 
-        // 生成密钥
+        // 加锁
         this.lockApplicant = argApplicant;
-
         return(true);
     }
 
-    /**
-     * <p>解锁伪春菜以去除其专用保护</p>
-     * <p>由于不依赖密钥解锁, 所以这个方法总是成功并且返回 true 的, 这意味着
-     * 可以抢占 Shell, 而且不会有栈信息以还原抢占... 原占有者也不会被通知(待定)<br>
-     * 此类的扩展者应该以 public 覆盖此方法, 并在自撰的代码<strong>后</strong>
-     * 调用此方法</p>
-     */
-    protected boolean unlockUkagaka()
-    {
-        this.lockApplicant = null;
+    // 此方法已废弃
+    // 原有的API安排不能解决同步互斥问题
+    // 因此更改setLockUkagaka()使之成为同步方法.
+    // 使用相同参数调用setLockUkagaka()可以解锁
+    ///**
+     //* <p>解锁伪春菜以去除其专用保护</p>
+     //* <p>由于不依赖密钥解锁, 所以这个方法总是成功并且返回 true 的, 这意味着
+     //* 可以抢占 Shell, 而且不会有栈信息以还原抢占... 原占有者也不会被通知(待定)<br>
+     //* 此类的扩展者应该以 public 覆盖此方法, 并在自撰的代码<strong>后</strong>
+     //* 调用此方法</p>
+     //*/
+    //protected boolean unlockUkagaka()
+    //{
+        //this.lockApplicant = null;
 
-        return(true);
-    }
+        //return(true);
+    //}
 
     /**
      * <p>此方法判定给定的密钥能否获得春菜的占用权</p>
@@ -629,7 +669,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
         return(argReguest == this.lockApplicant);
     }
 
-  // Balloon Manipulate | 气球操纵指令
+  // Balloon Manipulate | 气球.操纵指令
     /**
      * <p>创建一个气球, 初始化机能inside</p>
      * <p>此类的扩展者应该扩展这个函数并调用
@@ -830,3 +870,68 @@ public class JUkaShell extends JUkaComponent implements Serializable
     }
 }
 
+/**
+ * AnimationCtrl 是用于控制春菜进行连续动作的
+ */
+class AnimationCtrl extends Thread
+{
+    /**
+     * <p>传递给setEmotion的参数序列</p>
+     */
+    private LinkedList<String> aArg = new LinkedList<String>();
+    /**
+     * <p>用于暂停的参数列</p>
+     */
+    private LinkedList<Integer> pArg = new LinkedList<Integer>();
+    /**
+     * <p>用于记录动作的参数列</p>
+     */
+    private LinkedList<Character> cArg = new LinkedList<Character>();
+    /**
+     * 剩余重复数
+     */
+    private int remainRepeat;
+    /**
+     * 操纵的 Ukagaka
+     */
+    private UkagakaWin ukagakaWin;
+
+    /**
+     * <p>默认构造函数...什么也不做</p>
+     */
+    public AnimationCtrl()
+    {
+    }
+
+    public static AnimationCtrl startAniThread(String argAniSeq, int argRepeat, UkagakaWin argUkagaka)
+    {
+        AnimationCtrl newAniCtrl = new AnimationCtrl();
+
+        if (!newAniCtrl.parseAniSeq(argAniSeq))
+            return(null);
+        newAniCtrl.repeat = argRepeat;
+        newAniCtrl.ukagakaWin = argUkagaka;
+
+        return(newAniCtrl);
+    }
+
+    public void run()
+    {
+        return;
+    }
+
+    //public void actionPerformed(ActionEvent ev)
+    //{
+        //// TODO
+        //return;
+    //}
+
+    /**
+     * <p>为动作控制提供动作序列的解析服务</p>
+     * <p>此函数解析并截断其中的$em,$p标记, 并将其注入到apcArg队列中等候执行.</p>
+     */
+    public boolean parseAniSeq(String argAniSeq)
+    {
+        // TODO 等待伟豪的Token检定代码.
+    }
+}

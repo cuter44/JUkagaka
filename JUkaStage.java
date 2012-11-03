@@ -111,7 +111,7 @@ public class JUkaStage implements ActionListener,ImageObserver
     /**
      * <p>一般运行时的入口</p>
      */
-    public static void execute()
+    public static void run()
     {
         JUkaStage.registeredShell = JUkaShellCtrl.getRegisteredShell();
         JUkaStage.registeredGhost = JUkaGhostCtrl.getRegisteredGhost();
