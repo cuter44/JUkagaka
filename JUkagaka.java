@@ -13,7 +13,7 @@ public class JUkagaka
     public static void main(String[] args)
     {
         // Invoke
-        JUkaStage.execute();
+        JUkaStage.run();
 
         return;
     }

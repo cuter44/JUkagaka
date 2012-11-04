@@ -8,7 +8,7 @@ package jukagaka.shell;
 import jukagaka.*;
 
 //import javax.swing.JDialog;
-import java.awt.Color;
+//import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
@@ -302,7 +302,7 @@ public class UkagakaWin extends JUkaWindow
      */
     public void initalize(String argIniFile, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
-        UkagakaWin.initalizeInstance(this, argIniFile, argHtImages, argHtMasks);
+        UkagakaWin.doInitalize(this, argIniFile, argHtImages, argHtMasks);
     }
 
     /**
@@ -319,7 +319,7 @@ public class UkagakaWin extends JUkaWindow
      * @param argHtMasks ¶ÔÓ¦Í¼Ïñ¿âµÄÃÉ°æ¿â
 
      */
-    public static void initalizeInstance(UkagakaWin argUkaWin, String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
+    public static void doInitalize(UkagakaWin argUkaWin, String argIni, Hashtable<String, Image> argHtImages, Hashtable<String, Area> argHtMasks)
     {
         Hashtable<String, String> htInitInfo = JUkaUtility.iniReadSector(argIni, "ukagaka");
         argUkaWin.setImageLib(argHtImages, argHtMasks);
