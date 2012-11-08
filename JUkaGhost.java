@@ -5,12 +5,21 @@
 
 package jukagaka.ghost;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import jukagaka.*;
 import jukagaka.shell.*;
 import jukagaka.shell.cyaushell.CyauShell;
 
 import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.Timer;
 
 public class JUkaGhost extends JUkaComponent implements Serializable
 {
@@ -116,11 +125,15 @@ public class JUkaGhost extends JUkaComponent implements Serializable
      * <p>(*) 任何扩展此类的子类都必须以此方法签名重写该方法<br>
      * 子类的该方法会在 JUkagaka 启动时被调用, 以提供机会让 Ghost 完成初始化工作</p>
      */
-    public static void onLoad() throws IOException, ClassNotFoundException {
+    protected static void onLoad(String ghostargFile){
 
-        JUkaGhost.argghost = JUkaGhost.OSReading(null);
-
-
+            try {
+            JUkaGhost.argghost = JUkaGhost.OSReading(ghostargFile);
+        } catch (IOException ex) {
+            Logger.getLogger(JUkaGhost.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(JUkaGhost.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return;
     }
 
@@ -129,7 +142,7 @@ public class JUkaGhost extends JUkaComponent implements Serializable
      * <p>(*) 任何扩展此类的子类都必须以此方法签名重写该方法<br>
      * 子类的该方法会在所有 JUkaComponentCtrl 初始化完成后被调用, 以引导 Ghost 开始工作</p>
      */
-    public static void onStart()
+    protected static void onStart()
     {
         return;
     }
@@ -148,13 +161,13 @@ public class JUkaGhost extends JUkaComponent implements Serializable
     //public String speak(String argSpeech, JUkaShell argShell)
 
 
-    protected void createGhost(JUkaGhost os,String GhostargFile){
-        docreateGhost(this,GhostargFile);
+    protected void createGhost(JUkaGhost os){
+        docreateGhost(this);
        
 
 	}
     
-    private JUkaGhost docreateGhost(JUkaGhost os,String GhostargFile){
+    private JUkaGhost docreateGhost(JUkaGhost os){
         os.mainGhost=new GhostOperatingSystem();
         os.mainGhost.initalizeOS();
         
@@ -176,12 +189,21 @@ public class JUkaGhost extends JUkaComponent implements Serializable
 	//存储Ghost人格以及部分Shell,进行中
 
 
+    public void OSStorage(String ghostargFile){
+        try {
+            JUkaGhost.doOSStorage(this, ghostargFile);
+        } catch (IOException ex) {
+           System.err.println("error in 196");
+        }
+    }
 
-	public static void OSStorage(GhostOperatingSystem os,String ghostargFile) throws IOException
-	{
-            ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(ghostargFile));
-			output.close();
-	}
+    public static void doOSStorage(JUkaGhost argGhost, String ghostargFile) throws IOException {
+
+        ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(ghostargFile));
+        output.writeObject(argGhost);
+        output.close();
+
+    }
         
         
         
@@ -192,20 +214,233 @@ public class JUkaGhost extends JUkaComponent implements Serializable
           return initghost;
         }
 
-/**
-     * @deprecated 此方法目前仅用于调试
+/*
+ * 这个类为茶兔speak类的第一版，修改自第一个CyauGhost,但是其中加入了宏解释功能
+ * 此类之后较适合加入于GhostOperatingSystem类，当然加入Ghost中也能运行，此类只能
+ * 作为测试功能供你们吐槽的作用。
+*/
+//public class Speak extends JPanel {
+//    private int lth = GetTucaoLength();
+//    private JTextArea area = new JTextArea();
+//    private String[] tucaoText = GetTucaoText();
+//    private int time;
+//    
+//    int delay = 1500; //milliseconds
+//    final int seconddelay = 4000;//第二延时器
+//    Timer timer;
+//
+//    public Speak() throws FileNotFoundException{
+//        initalizeSpeak();
+//    }
+//
+//    protected void initalizeSpeak() {
+//
+//        int delay = 6000; //milliseconds
+//        final int seconddelay = 4000;//第二延时器
+//
+//        timer = new Timer(delay, new Speak.timelistener());
+//
+//
+//    }
+//
+//        class timelistener implements ActionListener {
+//
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                BalloonWin testBall = masterShell.createBalloon(TOOL_TIP_TEXT_KEY, null, null);
+//                time = (int) (Math.random() * lth);            //产生随机内容
+//                SpeakCtrl(testBall);
+//                area.setLineWrap(true);
+//                area.setEditable(false);
+//                area.setWrapStyleWord(true);
+//                testBall.add(area, BorderLayout.CENTER);
+//                testBall.setVisible(true);
+//                testBall.setDragable(true);
+//
+//                ActionListener taskPerformer1 = new ActionListener() {
+//
+//                    @Override////第二计时器
+//                    public void actionPerformed(ActionEvent e) {
+//                        setVisible(false);
+//                        //   shell.destroyBalloon(newballoon);
+//                    }
+//                };
+//
+//                new Timer(seconddelay, taskPerformer1).start();
+//            }
+//        }
+//
+//        //
+//        public void CheckTucaoFile(File file) {//检查Tucao.txt是否存在
+//
+//            if (!file.exists()) {//检查Tucao.txt是否存在
+//                System.out.println("读取吐槽文件失败");
+//                System.exit(0);
+//            }
+//        }
+//
+//        public int GetTucaoLength() throws FileNotFoundException {//获取Tucao.txt的行数
+//
+//            int length = 0;
+//            File speakfile = new File(JUkaUtility.getProgramDir() + "Tucao.txt");
+//            CheckTucaoFile(speakfile);
+//            try (Scanner input = new Scanner(speakfile)) {
+//                while (input.hasNextLine()) {
+//                    length++;
+//                    input.nextLine();//将input扫描器移到下一行
+//                }
+//            }
+//
+//
+//            return length;
+//        }
+//
+//        public String[] GetTucaoText() {//将Tucao.txt中的文本读取并存到一个字符串数组中
+//
+//
+//            String username = null;//用户名
+//
+//            //username = log.getUsername();//获取用户名
+//
+//            File speakfile = new File(JUkaUtility.getProgramDir() + "Tucao.txt");//读取文本
+//            CheckTucaoFile(speakfile);//检查文本是否存在
+//            String[] tucaotext = new String[lth];//创建文本行数长度的字符串数组
+//            Scanner input = null;//初始化扫描器
+//            try {
+//                input = new Scanner(speakfile);
+//            } catch (FileNotFoundException ex) {
+//            }
+//            int i = 0;//计算tucaotext字符串数组下标
+//            while (input.hasNextLine()) {//是否存在下一行
+//                String tempstring = input.nextLine();//获取Tucao.txt中的一行字符串
+//                tucaotext[i] = tempstring;//将处理后的字符串存到tucaotext字符串数组中
+//                i++;
+//            }
+//            tucaoText = tucaotext;
+//            return tucaotext;
+//        }
+////吐槽面板开关
+//
+//        public void setTucao(boolean word) {
+//            if (word == true) {
+//                timer.start();
+//            } else {
+//                timer.stop();
+//            }
+//        }
+//
+//        public int SpeakCtrl(BalloonWin testBall) {
+//            String test = tucaoText[time].trim();
+//            StringBuilder demo1 = null;
+//            StringBuilder demo2 = null;
+//            int i = 0;
+//            while (i < test.length()) {
+//                char a = test.charAt(i);
+//
+//                if (a == '$') {
+//                    demo1.append(a);
+//                    while (test.charAt(i) != ';' || i < test.length()) {
+//                        demo1.append(test.charAt(i));
+//                        i++;
+//                    }
+//                    if (demo1.indexOf("$var") >= 0) {
+//                        //Todo转换为user名臣
+//                        continue;
+//                    }
+//
+//
+//                    if (demo1.indexOf("$s") >= 0) {
+//                        // 设定操作对象的shell
+//                        continue;
+//                    }
+//
+//
+//                    if (demo1.indexOf("$p") >= 0) {
+//                        //单独使用暂停说话，ani中使用暂停
+//                        continue;
+//                    }
+//
+//
+//
+//                    if (demo1.indexOf("$em") >= 0) {
+//                        //Todo设定图层，换表情
+//                        continue;
+//                    }
+//
+//
+//                    if (demo1.indexOf("$ani") >= 0) {
+//                        //Todo标记动画开始，不允许嵌套
+//                        continue;
+//                    }
+//
+//
+//                    if (demo1.indexOf("$_ani") >= 0) {
+//                        //Todo标记动画结束
+//                        continue;
+//                    }
+//
+//
+//                    if (demo1.indexOf("$sp") >= 0) {
+//                        //Todo字符上屏速度，不设定则使用默认，仅影响此speak中此标记之后的文字
+//                        continue;
+//                    }
+//
+//
+//                    if (demo1.indexOf("$brani") >= 0) {
+//                        //Todo打断动画
+//                        continue;
+//                    }
+//                    if (demo1.indexOf("$$") >= 0) {
+//                        //Todo解析为一个文本的$
+//                        continue;
+//                    }
+//                    if (demo1.indexOf("$n") >= 0) {
+//                        //Todo换行
+//                        continue;
+//                    }
+//
+//                } else {
+//                    while (test.charAt(i) != '$' || i < test.length()) {
+//                        demo2.append(a);
+//                        i++;
+//                    }
+//
+//                    area.setText(demo2.toString());//在气球上输出内容
+//                    new Thread(new Runnable() {
+//                        public void run() {                                                          
+//                            try {
+//                                Thread.sleep(500);
+//                            } catch (InterruptedException ex) {
+//                                Logger.getLogger(JUkaGhost.class.getName()).log(Level.SEVERE, null, ex);
+//                            }
+//                            }
+//                        
+//                    }).start();
+//                }
+//                i++;
+//                demo1 = null;
+//                demo2 = null;
+//
+//            }
+//
+//            return 0;
+//        }
+//    }
+
+    /**
+     * 
      */
-    public static void main(String[] args)
-    {
-        // 此代码段演示创建一个Shell的方法
-        // 注意因为这段代码写于JUkaShell尚未完全构建之时, 所以使用的方法有些许暴力
-        CyauShell.onLoad();
+    public static void main(String[] args) {
+        //以下测试
+         CyauShell.onLoad();
         CyauShell tmpshell = CyauShell.createShell();
+        
         UkagakaWin tmpukawin = tmpshell.getUkagaka();
+        //BalloonWin testballoon = tmpshell.createBalloon();
+
         tmpukawin.setVisible(true);
         tmpukawin.repaint();
         tmpukawin.clip();
-
         return;
     }
 }

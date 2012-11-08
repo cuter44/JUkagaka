@@ -10,6 +10,7 @@ import jukagaka.shell.*;
 import java.util.Hashtable;
 import java.awt.Image;
 import java.awt.geom.Area;
+import javax.swing.JWindow;
 
 public class CyauShell extends JUkaShell
 {
@@ -128,22 +129,25 @@ public class CyauShell extends JUkaShell
         // 用于测试创建 Shell / Ukagaka / Balloon
         CyauShell testShell = CyauShell.createShell();
         testShell.setWinVisible(0, true);
+		testShell.fireRepaint(0);
         testShell.fireClip(0);
         testShell.setWinVisible(1, true);
+		testShell.fireRepaint(1);
         testShell.fireClip(1);
 
-        //System.out.println(SampleShell.hashImages.size());
-        //System.out.println(SampleShell.hashMasks.size());
-        //System.out.println(SampleShell.uninstallComponent());
+        System.out.println(CyauShell.hashImages.size());
+        System.out.println(CyauShell.hashMasks.size());
+        System.out.println(CyauShell.uninstall());
 
-        //// 用于测试图像是否加载的代码
+        // 用于测试图像是否加载的代码
         //JWindow tmpJDialog = new JWindow();
         //tmpJDialog.setSize(320, 320);
         //tmpJDialog.setVisible(true);
-        //tmpJDialog.getGraphics().drawImage(SampleShell.hashImages.get("shell/SampleShell/surface0000.png"),
+        //tmpJDialog.getGraphics().drawImage(CyauShell.hashImages.get("/shell/cyaushell/surface0000.png"),
             //0, 0,
-            //JUkaStage.eventListener
+            //tmpJDialog
         //);
+		//System.out.println(CyauShell.hashImages.get("/shell/cyaushell/surface0000.png").getWidth(tmpJDialog));
 
         // 用于测试 UkagagkaWin 能否正确缓存的方法
         //UkagakaWin testUkaWin = UkagakaWin.createUkagaka(SampleShell.DEFAULT_INI, hashImages, hashMasks);
