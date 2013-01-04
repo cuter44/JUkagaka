@@ -36,7 +36,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class JUkaShell extends JUkaComponent implements Serializable
+abstract public class JUkaShell extends JUkaComponent implements Serializable
 {
   // Static Data (NEED REWRITE) | 待重写静态数据域
     // 请将这些数据域复制到你重写的子类中, 并按需要修改其中的字符串内容.
@@ -527,31 +527,32 @@ public class JUkaShell extends JUkaComponent implements Serializable
     }
 
   // Animation | 春菜.连续动作
-    private AnimationCtrl currentAniThread = null;
+  // 构建中...
+    //private AnimationCtrl currentAniThread = null;
 
-    public synchronized boolean startAnimation(String argAniSeq, int argRepeat, Object accessKey)
-    {
-        // 独占检查
-        if (!this.checkAuthority(accessKey))
-            return(false);
+    //public synchronized boolean startAnimation(String argAniSeq, int argRepeat, Object accessKey)
+    //{
+        //// 独占检查
+        //if (!this.checkAuthority(accessKey))
+            //return(false);
 
-        // 打断当前动作
-        if (currebtAniThread != null)
-            currentAniThread.interrupt();
+        //// 打断当前动作
+        //if (currentAniThread != null)
+            //currentAniThread.interrupt();
 
-        // 试图建立新动作控制器线程
-        this.curretAniThread = AnimationCtrl.startAniThread(argAniSeq, argRepeat, this.ukagakaWin);
-        if (this.currentAniThread == null)
-            return(false);
-        return(true);
-    }
+        //// 试图建立新动作控制器线程
+        //this.curretAniThread = AnimationCtrl.startAniThread(argAniSeq, argRepeat, this.ukagakaWin);
+        //if (this.currentAniThread == null)
+            //return(false);
+        //return(true);
+    //}
 
-    public void stopAnimation()
-    {
-        this.currentAniThread.interrupt();
-        this.currentAniThread = null;
-        return;
-    }
+    //public void stopAnimation()
+    //{
+        //this.currentAniThread.interrupt();
+        //this.currentAniThread = null;
+        //return;
+    //}
 
   // Ukagaka Event Handle | 春菜.窗体事件侦听
     /**
@@ -621,7 +622,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
      * <p>此类的扩展者应以 public 覆盖此函数, 并在自撰的代码<strong>后</strong>
      * 调用此方法.</p>
      */
-    protected boolean synchronized setLockUkagaka(Object argApplicant)
+    protected synchronized boolean setLockUkagaka(Object argApplicant)
     {
         // 解锁
         if (argApplicant == this.lockApplicant)
@@ -689,6 +690,8 @@ public class JUkaShell extends JUkaComponent implements Serializable
 
         return(newBalloon);
     }
+
+    abstract public BalloonWin createBalloon();
 
     /**
      * <p>清除指定的气球</p>
@@ -812,8 +815,8 @@ public class JUkaShell extends JUkaComponent implements Serializable
     }
 
     /**
-     * <p>要求裁剪指定的窗体</p>
-     * <p>对于气球窗体, 等价于argWin.clip()</p>
+     * <p>设定窗体显示隐藏</p>
+     * <p>对于气球窗体, 等价于argWin.setVisible(b)</p>
      */
     public boolean setWinVisible(JUkaWindow argWin, boolean b)
     {
@@ -873,6 +876,7 @@ public class JUkaShell extends JUkaComponent implements Serializable
 /**
  * AnimationCtrl 是用于控制春菜进行连续动作的
  */
+// 构建中...
 class AnimationCtrl extends Thread
 {
     /**
