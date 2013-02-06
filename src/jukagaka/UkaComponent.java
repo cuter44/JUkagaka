@@ -5,7 +5,7 @@ package jukagaka;
  * 任何组件都应该覆盖这些方法以被回调, 因为我<strong>不能通过继承来提醒其他人
  * 覆盖静态方法<br />
  */
-public interface UkaComponent
+public abstract class UkaComponent
 {
   // Launch | 启停接口
   // 这部分函数描述了 Ukagaka 组件系统中应遵守的最基本接口
@@ -19,7 +19,6 @@ public interface UkaComponent
      * 回调其 onStart() 方法; 若被调函数返回 false, 表示其不能运行, 主调函数
      * 需要这个信息作相应处理.<br />
      */
-    //@Deprecated
     //public static abstract boolean onLoad();
 
     /**
@@ -33,7 +32,6 @@ public interface UkaComponent
      * 主调函数需要这个信息作相应处理.<br />
      * 注意被调函数要在返回 false 前作相应的善后处理(比如释放内存, 停止自身实例).
      */
-    //@Deprecated
     //public static abstract boolean onStart();
 
     /**
@@ -43,8 +41,27 @@ public interface UkaComponent
      * 若被调函数返回 true, 表示已顺利卸除; 若被调函数返回 false, 表示其因为
      * 某些原因无法停止, 主调函数需要这个信息以告知用户.<br />
      */
-    //@Deprecated
     //public static abstract boolean onExit();
+
+    /**
+     * onInstall 函数在被加入到引导列表时被回调.<br />
+     * <br />
+     * 设计这个函数头的目的是为了让组件在被安装时有机会完成某些支撑部署
+     * (例如创建私有配置文件)<br />
+     * 虽然要求返回一个布尔值但我还不知道应该怎么使用它...暂时先全部返回
+     * true 就好了<br />
+     */
+    //public static abstract boolean onInstall();
+
+    /**
+     * onInstall 函数在被从引导列表去除时被回调.<br />
+     * <br />
+     * 设计这个函数头的目的是为了让组件在被卸除时有机会完成善后工作
+     * (例如清理磁盘存储)<br />
+     * 虽然要求返回一个布尔值但我还不知道应该怎么使用它...暂时先全部返回
+     * true 就好了<br />
+     */
+    //public static abstract boolean onUnistall();
 
     //public static void main(String[] args)
     //{

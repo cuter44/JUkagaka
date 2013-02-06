@@ -15,12 +15,19 @@ import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 /* 标准数据结构 */
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Iterator;
+/* 字符串处理 */
+import java.util.StringTokenizer;
+/* 反射 */
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 /* 包内依赖 */
 //import jukagaka.UkaComponent;
 /* end_import */
 
-public class UkaDaemon implements UkaComponent
+public class UkaDaemon extends UkaComponent
 {
   // Path | 路径
   // 获取用户配置文件夹和程序装载目录
@@ -33,7 +40,6 @@ public class UkaDaemon implements UkaComponent
      * 缓存用户程序设定的绝对路径, 由 getUserConfDir() 生成和获取.
      */
     private static String userConfDir = null;
-
   // 代码
     /**
      * 此方法生成和返回程序的根目录(programDir)<br />
@@ -121,7 +127,6 @@ public class UkaDaemon implements UkaComponent
      */
     private static Properties globalConf = new Properties();
     private static Properties userConf = new Properties();
-
   // 代码
     /**
      * 从<strong>标准配置</strong>文件中提取配置值<br />
@@ -138,7 +143,7 @@ public class UkaDaemon implements UkaComponent
         strValue = userConf.getProperty(strKey);
         // 查询全局变量表
         if (strValue == null)
-            strValue = userConf.getProperty(strKey);
+            strValue = globalConf.getProperty(strKey);
 
         return(strValue);
     }
@@ -263,17 +268,240 @@ public class UkaDaemon implements UkaComponent
   // ============================================
   // Components | 组件
   // 监察和控制各个部件的运行状况
+  // 数据
+    /**
+     * 当前加载到环境的组件名字表<br />
+     * <br />
+     * compList[0] 装载 Shell 的列表<br />
+     */
+    @SuppressWarnings("unchecked")
+    private static HashSet<String> compList[] = new HashSet[3];
+    /**
+     * [字符串资源]用于读写组件列表
+     */
+    private static final String strCompListKey[] = {"Uka.ShellList","Uka.GhostList","Uka.PluginList"};
+  // 代码
+    //@SuppressWarnings("unchecked")
     protected static boolean onLoad()
     {
+        int i;
+
+        loadConf();
+
+        File userConfFile = new File(userConfFileName);
+        if (!userConfFile.exists())
+        {
+            // TODO: treat new user.
+        }
+
+        // 展开加载项
+        for (i=0; i<=2; i++)
+        {
+            compList[i] = new HashSet<String>();
+
+            // 析出字串
+            String strCompList = getConf(strCompListKey[i]);
+            if (strCompList == null)
+                strCompList = "";
+
+            // 分解字串
+            StringTokenizer strSpilt = new StringTokenizer(strCompList, " [],");
+            while (strSpilt.hasMoreTokens())
+                compList[i].add(strSpilt.nextToken());
+        }
+
+        // 回调 onLoad()
+        for (i=0; i<=2; i++)
+        {
+            Iterator<String> itr = compList[i].iterator();
+
+            while (itr.hasNext())
+            {
+                String compName = itr.next();
+                Class compClass = null;
+                Method compMethod = null;
+                Boolean rtValue = Boolean.FALSE;
+
+                try
+                {
+                    // 析出组件名字
+                    compClass = Class.forName(compName);
+                    compMethod = compClass.getMethod("onLoad");
+                    // 回调
+                    rtValue = (Boolean)compMethod.invoke(null);
+                }
+                catch (ClassNotFoundException ex)
+                {
+                    System.err.println("error:UkaDaemon.onLoad():找不到类, 因为类不存在于物理文件系统或 Classpath 设定不正确");
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+                catch (NoSuchMethodException ex)
+                {
+                    System.err.println("error:UkaDaemon.onLoad():找不到 onLoad() 方法, 请求的类可能不是伪春菜组件:" + compClass.toString());
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+                catch (InvocationTargetException ex)
+                {
+                    System.err.println("error:UkaDaemon.onLoad():被调用的函数抛出异常");
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+                catch (IllegalAccessException ex)
+                {
+                    System.err.println("error:UkaDaemon.onLoad():发生了不知道什么错误, 反正就是不能加载>っ<");
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+
+                if (rtValue.equals(Boolean.FALSE))
+                {
+                    System.err.println("note:UkaDaemon.onLoad():因为发生错误或组件积极拒绝, 已停止加载组件:" + compName);
+                    itr.remove();
+                    //continue;
+                }
+            }
+        }
+
         return(true);
     }
 
     protected static boolean onStart()
     {
+        int i;
+
+        // 回调 onStart()
+        for (i=0; i<=2; i++)
+        {
+            Iterator<String> itr = compList[i].iterator();
+
+            while (itr.hasNext())
+            {
+                String compName = itr.next();
+                Class compClass = null;
+                Method compMethod = null;
+                Boolean rtValue = Boolean.FALSE;
+
+                try
+                {
+                    // 析出组件名字
+                    compClass = Class.forName(compName);
+                    compMethod = compClass.getMethod("onStart");
+                    // 回调
+                    rtValue = (Boolean)compMethod.invoke(null);
+                }
+                catch (ClassNotFoundException ex)
+                {
+                    System.err.println("error:UkaDaemon.onStart():找不到类, 因为类不存在于物理文件系统或 Classpath 设定不正确");
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+                catch (NoSuchMethodException ex)
+                {
+                    System.err.println("error:UkaDaemon.onStart():找不到 onStart() 方法, 请求的类可能不是伪春菜组件:" + compMethod.toString());
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+                catch (InvocationTargetException ex)
+                {
+                    System.err.println("error:UkaDaemon.onStart():被调用的函数抛出异常");
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+                catch (IllegalAccessException ex)
+                {
+                    System.err.println("error:UkaDaemon.onStart():发生了不知道什么错误, 反正就是不能加载>っ<");
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+
+                if (rtValue.equals(Boolean.FALSE))
+                {
+                    System.err.println("note:UkaDaemon.onStart():因为发生错误或组件积极拒绝, 已停止加载组件:" + compName);
+                    itr.remove();
+                    //continue;
+                }
+            }
+        }
+
         return(true);
     }
 
     protected static boolean onExit()
+    {
+        int i;
+
+        // 回调 onExit()
+        for (i=0; i<=2; i++)
+        {
+            Iterator<String> itr = compList[i].iterator();
+
+            while (itr.hasNext())
+            {
+                String compName = itr.next();
+                Class compClass = null;
+                Method compMethod = null;
+                Boolean rtValue = Boolean.FALSE;
+
+                try
+                {
+                    // 析出组件名字
+                    compClass = Class.forName(compName);
+                    compMethod = compClass.getMethod("onExit");
+                    // 回调
+                    rtValue = (Boolean)compMethod.invoke(null);
+                }
+                // 以下 Exception 基本不会发生除非忘了写 onExit() 方法...
+                catch (ClassNotFoundException ex)
+                {
+                    System.err.println("error:UkaDaemon.onExit():找不到类, 因为类不存在于物理文件系统或 Classpath 设定不正确");
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+                catch (NoSuchMethodException ex)
+                {
+                    System.err.println("error:UkaDaemon.onExit():找不到 onExit() 方法, 请求的类可能不是伪春菜组件:" + compClass.toString());
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+                catch (InvocationTargetException ex)
+                {
+                    System.err.println("error:UkaDaemon.onExit():被调用的函数抛出异常");
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+                catch (IllegalAccessException ex)
+                {
+                    System.err.println("error:UkaDaemon.onExit():发生了不知道什么错误...");
+                    ex.printStackTrace();
+                    rtValue = Boolean.FALSE;
+                }
+
+                if (rtValue.equals(Boolean.FALSE))
+                {
+                    System.err.println("note:UkaDaemon.onExit():因为发生错误或组件积极拒绝, 无法停止组件:" + compName);
+                    //continue;
+                }
+                else
+                {
+                    itr.remove();
+                }
+            }
+        }
+
+        // 保存配置项
+        saveConf();
+
+        return(true);
+    }
+
+    protected static boolean onInstall()
+    {
+        return(true);
+    }
+
+    protected static boolean onUnistall()
     {
         return(true);
     }
@@ -289,8 +517,9 @@ public class UkaDaemon implements UkaComponent
      */
     public static void main(String[] args)
     {
-        dumpDirs();
-        dumpConf();
+        onLoad();
+        onStart();
+        onExit();
         return;
     }
 
