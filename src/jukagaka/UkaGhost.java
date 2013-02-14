@@ -4,7 +4,7 @@ package jukagaka;
 //import jukagaka.UkaComponent;
 /* ---- */
 
-public class UkaGhost extends UkaComponent
+public abstract class UkaGhost implements UkaComponent
 {
     //public static void main(String[] args)
     //{

@@ -27,7 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 //import jukagaka.UkaComponent;
 /* end_import */
 
-public class UkaDaemon extends UkaComponent
+public class UkaDaemon implements UkaComponent
 {
   // Path | 路径
   // 获取用户配置文件夹和程序装载目录
@@ -176,6 +176,30 @@ public class UkaDaemon extends UkaComponent
     }
 
     /**
+     * 从全局<strong>标准配置</strong>文件清除配置项<br />
+     * <br />
+     * 清除指定的键和值, 也就是使对配置表调用 getConf(strKey) 时返回 null
+     * @param strKey 要删除的键
+     * @return strKey 所存储的值, 如果指定的键名不存在则返回 null
+     */
+    public static String removeConfGlobal(String strKey)
+    {
+        return((String)globalConf.remove(strKey));
+    }
+
+    /**
+     * 从用户<strong>标准配置</strong>文件清除配置项<br />
+     * <br />
+     * 清除指定的键和值, 也就是使对配置表调用 getConf(strKey) 时返回 null
+     * @param strKey 要删除的键
+     * @return strKey 所存储的值, 如果指定的键名不存在则返回 null
+     */
+    public static String removeConfUser(String strKey)
+    {
+        return((String)userConf.remove(strKey));
+    }
+
+    /**
      * 将某个配置表保存到文件<br />
      * <br />
      * 一个文件内只能容纳一个配置表<br />
@@ -275,11 +299,11 @@ public class UkaDaemon extends UkaComponent
      * compList[0] 装载 Shell 的列表<br />
      */
     @SuppressWarnings("unchecked")
-    private static HashSet<String> compList[] = new HashSet[3];
+    private static HashSet<String> compList[] = new HashSet[4];
     /**
      * [字符串资源]用于读写组件列表
      */
-    private static final String strCompListKey[] = {"Uka.ShellList","Uka.GhostList","Uka.PluginList"};
+    private static final String strCompListKey[] = {"Uka.CompList","Uka.ShellList","Uka.GhostList","Uka.PluginList"};
   // 代码
     //@SuppressWarnings("unchecked")
     protected static boolean onLoad()
@@ -295,7 +319,7 @@ public class UkaDaemon extends UkaComponent
         }
 
         // 展开加载项
-        for (i=0; i<=2; i++)
+        for (i=0; i<=3; i++)
         {
             compList[i] = new HashSet<String>();
 
@@ -311,7 +335,7 @@ public class UkaDaemon extends UkaComponent
         }
 
         // 回调 onLoad()
-        for (i=0; i<=2; i++)
+        for (i=0; i<=3; i++)
         {
             Iterator<String> itr = compList[i].iterator();
 
@@ -372,7 +396,7 @@ public class UkaDaemon extends UkaComponent
         int i;
 
         // 回调 onStart()
-        for (i=0; i<=2; i++)
+        for (i=0; i<=3; i++)
         {
             Iterator<String> itr = compList[i].iterator();
 
@@ -433,7 +457,7 @@ public class UkaDaemon extends UkaComponent
         int i;
 
         // 回调 onExit()
-        for (i=0; i<=2; i++)
+        for (i=0; i<=3; i++)
         {
             Iterator<String> itr = compList[i].iterator();
 
@@ -496,6 +520,16 @@ public class UkaDaemon extends UkaComponent
         return(true);
     }
 
+    public static boolean loadComp(String compName)
+    {
+        return(true);
+    }
+
+    public static boolean terminateComp(String compName)
+    {
+        return(true);
+    }
+
     protected static boolean onInstall()
     {
         return(true);
@@ -504,6 +538,19 @@ public class UkaDaemon extends UkaComponent
     protected static boolean onUnistall()
     {
         return(true);
+    }
+  // ============================================
+  // Dependence | 依赖关系
+  // 组件可以查询其他组件是否已加载
+  // 代码
+    /**
+     * 返回调用时刻某组件是否已加载<br />
+     * <br />
+     *
+     */
+    public static boolean isLoaded(String compName)
+    {
+        return
     }
 
   // ============================================

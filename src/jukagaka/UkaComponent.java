@@ -5,7 +5,7 @@ package jukagaka;
  * 任何组件都应该覆盖这些方法以被回调, 因为我<strong>不能通过继承来提醒其他人
  * 覆盖静态方法<br />
  */
-public abstract class UkaComponent
+public interface UkaComponent
 {
   // Launch | 启停接口
   // 这部分函数描述了 Ukagaka 组件系统中应遵守的最基本接口
@@ -20,6 +20,10 @@ public abstract class UkaComponent
      * 需要这个信息作相应处理.<br />
      */
     //public static abstract boolean onLoad();
+    // 默认实现
+    //{
+        //return(true);
+    //}
 
     /**
      * onStart() 函数在 onLoad() 返回 true, 并且在所有待调用组件完成 onLoad()
@@ -33,6 +37,10 @@ public abstract class UkaComponent
      * 注意被调函数要在返回 false 前作相应的善后处理(比如释放内存, 停止自身实例).
      */
     //public static abstract boolean onStart();
+    // 默认实现
+    //{
+        //return(true);
+    //}
 
     /**
      * onExit() 函数在组件决定应该被从内存中卸除时调用.<br />
@@ -42,6 +50,10 @@ public abstract class UkaComponent
      * 某些原因无法停止, 主调函数需要这个信息以告知用户.<br />
      */
     //public static abstract boolean onExit();
+    // 默认实现
+    //{
+        //return(true);
+    //}
 
     /**
      * onInstall 函数在被加入到引导列表时被回调.<br />
@@ -52,6 +64,10 @@ public abstract class UkaComponent
      * true 就好了<br />
      */
     //public static abstract boolean onInstall();
+    // 默认实现
+    //{
+        //return(true);
+    //}
 
     /**
      * onInstall 函数在被从引导列表去除时被回调.<br />
@@ -62,6 +78,10 @@ public abstract class UkaComponent
      * true 就好了<br />
      */
     //public static abstract boolean onUnistall();
+    // 默认实现
+    //{
+        //return(true);
+    //}
 
     //public static void main(String[] args)
     //{
