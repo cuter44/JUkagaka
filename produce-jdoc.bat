@@ -1,1 +1,0 @@
-javadoc -locale zh_CN -private -d ./jdoc -classpath ./bin-win64 ./*.java ./sample-cyau-shell/*.java

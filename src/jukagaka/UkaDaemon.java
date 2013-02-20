@@ -539,6 +539,7 @@ public class UkaDaemon implements UkaComponent
     {
         return(true);
     }
+
   // ============================================
   // Dependence | 依赖关系
   // 组件可以查询其他组件是否已加载
@@ -550,20 +551,21 @@ public class UkaDaemon implements UkaComponent
      */
     public static boolean isLoaded(String compName)
     {
-        return
+        return(true);
     }
 
   // ============================================
   // Debug | 调试
   // 用于开发时调试用的函式
   // 数据
-
   // 代码
     /**
      * 测试用 main()
      */
     public static void main(String[] args)
     {
+        dumpDirs();
+
         onLoad();
         onStart();
         onExit();

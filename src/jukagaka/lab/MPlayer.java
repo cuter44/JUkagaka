@@ -148,7 +148,7 @@ public class MPlayer implements UkaComponent,Runnable
 
                     while ((buffer = mpOutputReader.readLine()) != null)
                     {
-                        //System.out.println(buffer);
+                        System.out.println(buffer);
                         //Thread.sleep(50);
                     }
 

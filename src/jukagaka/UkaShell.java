@@ -6,6 +6,42 @@ package jukagaka;
 
 public abstract class UkaShell implements UkaComponent
 {
+  // Launch | ÆôÍ£½Ó¿Ú
+    public static boolean onLoad()
+    {
+        return(true);
+    }
+
+    public static boolean onStart()
+    {
+        return(true);
+    }
+
+    public static boolean onExit()
+    {
+        return(true);
+    }
+
+    public static boolean onInstall()
+    {
+        return(true);
+    }
+
+    public static boolean onUnistall()
+    {
+        return(true);
+    }
+
+  // Image | Í¼Ïñ
+    //public static Image loadImage(???)
+    //{
+    //}
+
+    //public static Shape getMask(Image img)
+    //{
+    //}
+
+  // Debug | µ÷ÊÔ
     //public static void main(String[] args)
     //{
         //return;
