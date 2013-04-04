@@ -19,6 +19,8 @@ import java.io.IOException;
  * XPath 的说明 @link http://www.w3school.com.cn/xpath/index.asp
  * DTD 的说明 @link http://www.w3school.com.cn/dtd/dtd_intro.asp
  * 关于Java×XML的详细说明 @link http://www.ibm.com/developerworks/cn/xml/theme/x-java.html
+ * ----
+ * JDOM2改版XPath @link https://github.com/hunterhacker/jdom/wiki/JDOM2-Feature-XPath-Upgrade
  */
 public class TestJDOM
 {
@@ -61,3 +63,6 @@ public class TestJDOM
         return;
     }
 }
+
+// 结论:
+// 写了个简陋的遍历而已

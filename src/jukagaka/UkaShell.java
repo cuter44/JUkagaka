@@ -1,12 +1,18 @@
 package jukagaka;
 
-/* 内部依赖 */
+/* jukagaka */
 //import jukagaka.UkaComponent;
+import jukagaka.shell.UkaWindow;
+import jukagaka.shell.Ukagaka;
+import jukagaka.shell.Balloon;
+/* 容器 */
+import java.util.LinkedList;
 /* ---- */
 
 public abstract class UkaShell implements UkaComponent
 {
   // Launch | 启停接口
+    // 代码
     public static boolean onLoad()
     {
         return(true);
@@ -32,14 +38,29 @@ public abstract class UkaShell implements UkaComponent
         return(true);
     }
 
-  // Image | 图像
-    //public static Image loadImage(???)
-    //{
-    //}
+  // Frames | 窗体
+  // 数据
+    /**
+     *
+     */
+     private Ukagaka ukagaka = null;
+  // 代码
+    /**
+     * 获得春菜的引用
+     * @return 该 Shell 下属的春菜
+     */
+    public Ukagaka getUkagaka()
+    {
+        return(this.ukagaka);
+    }
 
-    //public static Shape getMask(Image img)
-    //{
-    //}
+  // Coordinate | 定位
+
+  // Constructor & Destructor | 构造
+    protected UkaShell(Ukagaka argUkagaka)
+    {
+        this.ukagaka = argUkagaka;
+    }
 
   // Debug | 调试
     //public static void main(String[] args)

@@ -23,7 +23,7 @@ import java.util.StringTokenizer;
 /* 反射 */
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
-/* 包内依赖 */
+/* jukagaka */
 //import jukagaka.UkaComponent;
 /* end_import */
 
@@ -87,12 +87,6 @@ public class UkaDaemon implements UkaComponent
             if (osName.startsWith("Windows"))
             {
                 userConfDir = System.getenv("appdata") + "\\JUkagaka";
-                // [Windows 2000, Windows 2003 R2]
-                //if (osVersion < 5.9)
-                    //userConfDir = userHome + "\\Application Data\\jukagaka";
-                //// [Windows Vista, Windows 8]
-                //if (osVersion < 6.21)
-                    //userConfDir = userHome + "\\AppData\\Local\\jukagaka";
 
                 return(userConfDir);
             }
@@ -293,17 +287,19 @@ public class UkaDaemon implements UkaComponent
   // Components | 组件
   // 监察和控制各个部件的运行状况
   // 数据
+    private static int COMP_LEVELS = 5;
     /**
      * 当前加载到环境的组件名字表<br />
      * <br />
      * compList[0] 装载 Shell 的列表<br />
      */
     @SuppressWarnings("unchecked")
-    private static HashSet<String> compList[] = new HashSet[4];
+    private static HashSet<String> compList[] = new HashSet[COMP_LEVELS];
     /**
      * [字符串资源]用于读写组件列表
      */
-    private static final String strCompListKey[] = {"Uka.CompList","Uka.ShellList","Uka.GhostList","Uka.PluginList"};
+    private static final String strCompListKey[] = {"Uka.Comp.SysList",
+        "Uka.Comp.ShellList","Uka.Comp.GhostList","Uka.Comp.PluginList","Uka.Comp.Runtime"};
   // 代码
     //@SuppressWarnings("unchecked")
     protected static boolean onLoad()
@@ -319,7 +315,7 @@ public class UkaDaemon implements UkaComponent
         }
 
         // 展开加载项
-        for (i=0; i<=3; i++)
+        for (i=0; i<COMP_LEVELS; i++)
         {
             compList[i] = new HashSet<String>();
 
@@ -335,14 +331,14 @@ public class UkaDaemon implements UkaComponent
         }
 
         // 回调 onLoad()
-        for (i=0; i<=3; i++)
+        for (i=0; i<COMP_LEVELS; i++)
         {
-            Iterator<String> itr = compList[i].iterator();
+            Iterator<String> iter = compList[i].iterator();
 
-            while (itr.hasNext())
+            while (iter.hasNext())
             {
-                String compName = itr.next();
-                Class compClass = null;
+                String compName = iter.next();
+                Class<?> compClass = null;
                 Method compMethod = null;
                 Boolean rtValue = Boolean.FALSE;
 
@@ -354,36 +350,17 @@ public class UkaDaemon implements UkaComponent
                     // 回调
                     rtValue = (Boolean)compMethod.invoke(null);
                 }
-                catch (ClassNotFoundException ex)
+                catch (Exception ex)
                 {
-                    System.err.println("error:UkaDaemon.onLoad():找不到类, 因为类不存在于物理文件系统或 Classpath 设定不正确");
-                    ex.printStackTrace();
-                    rtValue = Boolean.FALSE;
-                }
-                catch (NoSuchMethodException ex)
-                {
-                    System.err.println("error:UkaDaemon.onLoad():找不到 onLoad() 方法, 请求的类可能不是伪春菜组件:" + compClass.toString());
-                    ex.printStackTrace();
-                    rtValue = Boolean.FALSE;
-                }
-                catch (InvocationTargetException ex)
-                {
-                    System.err.println("error:UkaDaemon.onLoad():被调用的函数抛出异常");
-                    ex.printStackTrace();
-                    rtValue = Boolean.FALSE;
-                }
-                catch (IllegalAccessException ex)
-                {
-                    System.err.println("error:UkaDaemon.onLoad():发生了不知道什么错误, 反正就是不能加载>っ<");
+                    System.err.println("error:UkaDaemon.onLoad():因为发生错误已中止加载组件:" + compName);
                     ex.printStackTrace();
                     rtValue = Boolean.FALSE;
                 }
 
                 if (rtValue.equals(Boolean.FALSE))
                 {
-                    System.err.println("note:UkaDaemon.onLoad():因为发生错误或组件积极拒绝, 已停止加载组件:" + compName);
-                    itr.remove();
-                    //continue;
+                    System.err.println("note:UkaDaemon.onLoad():因为发生错误或组件积极拒绝, 已中止加载组件:" + compName);
+                    iter.remove();
                 }
             }
         }
@@ -396,14 +373,14 @@ public class UkaDaemon implements UkaComponent
         int i;
 
         // 回调 onStart()
-        for (i=0; i<=3; i++)
+        for (i=0; i<=COMP_LEVELS; i++)
         {
-            Iterator<String> itr = compList[i].iterator();
+            Iterator<String> iter = compList[i].iterator();
 
-            while (itr.hasNext())
+            while (iter.hasNext())
             {
-                String compName = itr.next();
-                Class compClass = null;
+                String compName = iter.next();
+                Class<?> compClass = null;
                 Method compMethod = null;
                 Boolean rtValue = Boolean.FALSE;
 
@@ -415,39 +392,23 @@ public class UkaDaemon implements UkaComponent
                     // 回调
                     rtValue = (Boolean)compMethod.invoke(null);
                 }
-                catch (ClassNotFoundException ex)
+                catch (Exception ex)
                 {
-                    System.err.println("error:UkaDaemon.onStart():找不到类, 因为类不存在于物理文件系统或 Classpath 设定不正确");
-                    ex.printStackTrace();
-                    rtValue = Boolean.FALSE;
-                }
-                catch (NoSuchMethodException ex)
-                {
-                    System.err.println("error:UkaDaemon.onStart():找不到 onStart() 方法, 请求的类可能不是伪春菜组件:" + compMethod.toString());
-                    ex.printStackTrace();
-                    rtValue = Boolean.FALSE;
-                }
-                catch (InvocationTargetException ex)
-                {
-                    System.err.println("error:UkaDaemon.onStart():被调用的函数抛出异常");
-                    ex.printStackTrace();
-                    rtValue = Boolean.FALSE;
-                }
-                catch (IllegalAccessException ex)
-                {
-                    System.err.println("error:UkaDaemon.onStart():发生了不知道什么错误, 反正就是不能加载>っ<");
+                    System.err.println("error:UkaDaemon.onStart():因为发生错误已中止加载组件:" + compName);
                     ex.printStackTrace();
                     rtValue = Boolean.FALSE;
                 }
 
                 if (rtValue.equals(Boolean.FALSE))
                 {
-                    System.err.println("note:UkaDaemon.onStart():因为发生错误或组件积极拒绝, 已停止加载组件:" + compName);
-                    itr.remove();
-                    //continue;
+                    System.err.println("note:UkaDaemon.onStart():因为发生错误或组件积极拒绝, 已中止加载组件:" + compName);
+                    iter.remove();
+                    continue;
                 }
             }
+            // end_while
         }
+        // end_for
 
         return(true);
     }
@@ -457,14 +418,14 @@ public class UkaDaemon implements UkaComponent
         int i;
 
         // 回调 onExit()
-        for (i=0; i<=3; i++)
+        for (i=COMP_LEVELS; i>=0; i++)
         {
-            Iterator<String> itr = compList[i].iterator();
+            Iterator<String> iter = compList[i].iterator();
 
-            while (itr.hasNext())
+            while (iter.hasNext())
             {
-                String compName = itr.next();
-                Class compClass = null;
+                String compName = iter.next();
+                Class<?> compClass = null;
                 Method compMethod = null;
                 Boolean rtValue = Boolean.FALSE;
 
@@ -476,43 +437,25 @@ public class UkaDaemon implements UkaComponent
                     // 回调
                     rtValue = (Boolean)compMethod.invoke(null);
                 }
-                // 以下 Exception 基本不会发生除非忘了写 onExit() 方法...
-                catch (ClassNotFoundException ex)
+                catch (Exception ex)
                 {
-                    System.err.println("error:UkaDaemon.onExit():找不到类, 因为类不存在于物理文件系统或 Classpath 设定不正确");
-                    ex.printStackTrace();
-                    rtValue = Boolean.FALSE;
-                }
-                catch (NoSuchMethodException ex)
-                {
-                    System.err.println("error:UkaDaemon.onExit():找不到 onExit() 方法, 请求的类可能不是伪春菜组件:" + compClass.toString());
-                    ex.printStackTrace();
-                    rtValue = Boolean.FALSE;
-                }
-                catch (InvocationTargetException ex)
-                {
-                    System.err.println("error:UkaDaemon.onExit():被调用的函数抛出异常");
-                    ex.printStackTrace();
-                    rtValue = Boolean.FALSE;
-                }
-                catch (IllegalAccessException ex)
-                {
-                    System.err.println("error:UkaDaemon.onExit():发生了不知道什么错误...");
+                    System.err.println("error:UkaDaemon.onExit():因为发生错误无法停止组件:" + compName);
                     ex.printStackTrace();
                     rtValue = Boolean.FALSE;
                 }
 
                 if (rtValue.equals(Boolean.FALSE))
                 {
-                    System.err.println("note:UkaDaemon.onExit():因为发生错误或组件积极拒绝, 无法停止组件:" + compName);
-                    //continue;
+                    System.err.println("error:UkaDaemon.onExit():因为发生错误或组件积极拒绝, 无法停止组件:" + compName);
                 }
                 else
                 {
-                    itr.remove();
+                    iter.remove();
                 }
             }
+            // end_while
         }
+        // end_for
 
         // 保存配置项
         saveConf();
@@ -520,14 +463,72 @@ public class UkaDaemon implements UkaComponent
         return(true);
     }
 
-    public static boolean loadComp(String compName)
+    /**
+     * 要求加载一个组件<br />
+     * <br />
+     * 只是简单地执行一个组件的onLoad(), onStart()方法, 假如均返回true则将其加入
+     * 正在运行的列表中<br />
+     */
+    public static boolean loadComp(String compName, int compLevel)
     {
-        return(true);
+        if ((compLevel < 0) || (compLevel >= COMP_LEVELS))
+            return(false);
+
+        if (isLoaded(compName))
+            return(false);
+
+        Class<?> compClass = null;
+        Method compMethod = null;
+        Boolean rtValue = Boolean.FALSE;
+
+        try
+        {
+            compClass = Class.forName(compName);
+            compMethod = compClass.getMethod("onLoad");
+            rtValue = (Boolean)compMethod.invoke(null);
+            if (rtValue.equals(Boolean.TRUE))
+            {
+                compMethod = compClass.getMethod("onStart");
+                rtValue = (Boolean)compMethod.invoke(null);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.err.println("error:UkaDaemon.loadComp():因为发生错误或组件积极拒绝, 无法启动组件:" + compName);
+            ex.printStackTrace();
+        }
+
+        return(rtValue);
     }
 
-    public static boolean terminateComp(String compName)
+    /**
+     * 要求停止一个组件<br />
+     * <br />
+     * 只是简单地执行一个组件的onExit(), 假如返回true则将其从
+     * 正在运行的列表中去除<br />
+     */
+    public static boolean unloadComp(String compName)
     {
-        return(true);
+        if (!isLoaded(compName))
+            return(false);
+
+        Class<?> compClass = null;
+        Method compMethod = null;
+        Boolean rtValue = Boolean.FALSE;
+
+        try
+        {
+            compClass = Class.forName(compName);
+            compMethod = compClass.getMethod("onExit");
+            rtValue = (Boolean)compMethod.invoke(null);
+        }
+        catch (Exception ex)
+        {
+            System.err.println("error:UkaDaemon.unloadComp():因为发生错误或组件积极拒绝, 无法停止组件:" + compName);
+            ex.printStackTrace();
+        }
+
+        return(rtValue);
     }
 
     protected static boolean onInstall()
@@ -545,12 +546,23 @@ public class UkaDaemon implements UkaComponent
   // 组件可以查询其他组件是否已加载
   // 代码
     /**
-     * 返回调用时刻某组件是否已加载<br />
+     * 检查某组件是否已加载<br />
      * <br />
-     *
+     * 仅仅是在已加载列表中检查指定的类名, 而不管其处于何种状态<br />
+     * @throws
      */
     public static boolean isLoaded(String compName)
     {
+        int i;
+        boolean rtValue = false;
+
+        for (i=0; i<COMP_LEVELS; i++)
+        {
+            Iterator<String> iter = compList[i].iterator();
+            while (iter.hasNext())
+                if (compName.equals(iter.next()))
+                    return(true);
+        }
         return(true);
     }
 
