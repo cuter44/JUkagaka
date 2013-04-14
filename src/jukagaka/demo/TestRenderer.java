@@ -25,8 +25,8 @@ public class TestRenderer
         System.out.println(ukagaka.getLayers().cacheImage.getWidth(ukagaka));
         System.out.println(ukagaka.getLayers().cacheImage.getHeight(ukagaka));
         ukagaka.setBounds(
-            0,
-            0,
+            320,
+            240,
             //120,
             //93
             ukagaka.getLayers().cacheImage.getWidth(ukagaka),

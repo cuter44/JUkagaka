@@ -396,6 +396,8 @@ public class SwingRenderer implements UkagakaRenderer, BalloonRenderer, Property
 
         // 注册图层侦听器
         argWindow.addLayerChangeListener(this);
+        // 设定布局
+        argWindow.setLayout(null);
 
         // TODO Something else?
 
