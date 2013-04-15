@@ -62,6 +62,10 @@ public abstract class UkaShell implements UkaComponent
         this.ukagaka = argUkagaka;
     }
 
+    protected UkaShell()
+    {
+    }
+
   // Debug | ต๗สิ
     //public static void main(String[] args)
     //{

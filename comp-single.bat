@@ -1,5 +1,3 @@
-@echo off
-
 rem Batch file to build JUkagaka
 rem build 2013-4-14
 
