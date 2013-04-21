@@ -15,12 +15,37 @@ import java.util.ArrayList;
 
 public class UkaWindow extends JDialog
 {
+  // Render Data | 渲染数据
+    // 为渲染器提供数据锱点, 以便其他组件告诉渲染器需要显示什么内容.
+    // 通常会使用 String, 该 String 对于 SwingRenderer 意味着图层信息, 对 WebViewRenderer 意味着一个 URL
+  // 数据
+    private Object renderData = null;
+  // 方法
+    public void fireRenderDataChange(Object oldRenderData, Object newRenderData)
+    {
+        this.firePropertyChange("renderData", oldRenderData, newRenderData);
+
+        return;
+    }
+
+    public void setRenderData(Object newRenderData)
+    {
+        Object oldRenderData = this.renderData;
+        this.renderData = newRenderData;
+        fireRenderDataChange(oldRenderData, newRenderData);
+    }
+
+    public Object getRenderData()
+    {
+        return(this.renderData);
+    }
+
   // Constructor & Destructor | 构造及析构
   // 方法
     /**
      * 为 Ukagaka 类准备的构造方法
      */
-    protected UkaWindow()
+    public UkaWindow()
     {
         super();
         this.init();
@@ -41,7 +66,6 @@ public class UkaWindow extends JDialog
     private void init()
     {
         this.setUndecorated(true);
-        this.layers = new LayerGroup();
     }
 
   // Canvas | 画布
@@ -68,61 +92,6 @@ public class UkaWindow extends JDialog
      * * 使用 GLPanel 的代码可能有不同的写法
      */
 
-  // Layers | 图层
-  // 内部类
-    /**
-     * 该类为 UkaWindow 提供可缓冲图层容器
-     */
-    public class LayerGroup extends ArrayList<Object>
-    {
-        public Image cacheImage;
-        public Shape cacheMask;
-        public boolean modified = false;
-    }
-  // 数据
-    /**
-     * 图层<br />
-     * <br />
-     * 模拟 Photoshop 图层和文件夹的设计格式, 该数据为 Shell 和 Renderer
-     * 提供数据交换的场所. 定义为List&lt;Object&gt;能够使这个结构能自由地嵌套
-     * . 在我们的约定中, Renderer 应该为每一个"文件夹"维护一个缓存. 这使得在进
-     * 行多层绘制时能够有效节约时间<br />
-     * 在最终实现中, 由 UkaWindow负责初始化; 由 Shell 负责写入图层信息和通知变更;
-     * 由 Renderer 负责更新缓存以及重绘.<br />
-     * 虽然不限制嵌套层数但建议只嵌套一层, 过多的嵌套有增加缓存消耗的可能性.
-     * (虽然缓存行为由最终的 Renderer 确定)
-     */
-    protected LayerGroup layers = null;
-  // 方法
-    public void addLayerChangeListener(PropertyChangeListener l)
-    {
-        this.addPropertyChangeListener("layer",l);
-
-        return;
-    }
-
-    public void removeLayerChangeListener(PropertyChangeListener l)
-    {
-        this.removePropertyChangeListener("layer",l);
-
-        return;
-    }
-
-    /**
-     * 返回图层引用<br />
-     * <br />
-     * 对于图层只提供了get方法而没有提供set方法.<br />
-     * 子类可以为修改图层提供更简便的接口或私有的约定.<br />
-     */
-    public LayerGroup getLayers()
-    {
-        return this.layers;
-    }
-
-    public void fireLayerChange()
-    {
-        this.firePropertyChange("layer", null, this.layers);
-    }
 
   // Miscellaneous | 杂项
     public static void main(String[] args)
