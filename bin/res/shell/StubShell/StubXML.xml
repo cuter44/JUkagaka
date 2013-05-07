@@ -1,0 +1,15 @@
+<root>
+ <image>
+  <img id="cyau_st0" x="0" y="0" w="-1" h="-1" value="/res/shell/StubShell/surface0000.png" />
+  <img id="cyau_cry0" x="0" y="0" w="-1" h="-1" value="/res/shell/StubShell/surface0004.png" />
+  <img id="cyau_happy0" x="0" y="0" w="-1" h="-1" value="/res/shell/StubShell/surface0005.png" />
+  <img id="cyau_eye2" x="30" y="31" w="-1" h="-1" value="/res/shell/StubShell/surface1001.png" />
+  <img id="cyau_cloth1" x="0" y="0" w="-1" h="-1" value="/res/shell/StubShell/surface3523.png" />
+  <img id="cyau_cloth2" x="0" y="0" w="-1" h="-1" value="/res/shell/StubShell/surface3524.png" />
+  <img id="balloonbk" x="0" y="0" w="-1" h="-1" value="/res/shell/StubShell/balloonk0.png" />
+ </image>
+ <emotion>
+ </emotion>
+ <animation>
+ </animation>
+</root>
